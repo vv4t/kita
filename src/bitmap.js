@@ -6,9 +6,9 @@ export class Bitmap {
     this.width = width;
     this.height = height;
     this.canvas = document.createElement("CANVAS");
+    this.ctx = this.canvas.getContext("2d");
     this.canvas.width = width;
     this.canvas.height = height;
-    this.ctx = this.canvas.getContext("2d");
     this.data = this.ctx.getImageData(0, 0, width, height);
     this.dataU8 = new Uint8Array(this.data.data.buffer);
     

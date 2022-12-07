@@ -3,15 +3,12 @@ import { rand, clamp, degToRad, Vector2 } from "./math.js";
 import { Map } from "./map.js";
 import { Renderer } from "./renderer.js";
 
-const WIDTH = 640;
-const HEIGHT = 360;
-
 const canvas = document.getElementById("canvas");
 
 const ctx = canvas.getContext("2d");
 ctx.imageSmoothingEnabled = false;
 
-const bitmap = new Bitmap(640, 360);
+const bitmap = new Bitmap(256, 144);
 const renderer = new Renderer(bitmap);
 
 const map = new Map();
@@ -48,7 +45,8 @@ function keyEvent(key, action)
   }
 }
 
-setInterval(function() {
+function animate()
+{
   let moveDir = new Vector2(0, 0);
   
   if (moveForward)
@@ -67,4 +65,8 @@ setInterval(function() {
   renderer.renderSprite(new Vector2(5, 9), playerPos, playerDir);
   bitmap.swap();
   ctx.drawImage(bitmap.canvas, 0, 0, canvas.width, canvas.height);
-}, 15);
+  
+  window.requestAnimationFrame(animate);
+}
+
+window.requestAnimationFrame(animate);
