@@ -7,7 +7,7 @@ export class Texture {
     this.dataU8 = new Uint8Array(this.width * this.height * 4);
   }
   
-  getRGB(x, y)
+  getRGBA(x, y)
   {
     if (x < 0)
       x = 0;
@@ -23,7 +23,8 @@ export class Texture {
     return [
       this.dataU8[i + 0],
       this.dataU8[i + 1],
-      this.dataU8[i + 2]
+      this.dataU8[i + 2],
+      this.dataU8[i + 3]
     ];
   }
 };

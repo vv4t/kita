@@ -1,12 +1,6 @@
 import { clamp, Vector2 } from "./math.js";
 import { textureLoad } from "./texture.js";
 
-let texWall;
-
-textureLoad("assets/wall.png", (texture) => {
-  texWall = texture;
-});
-
 export class Renderer {
   constructor(bitmap)
   {
@@ -78,10 +72,10 @@ export class Renderer {
       for (let y = yp0; y < yp1; y++) {
         yTex += texStep;
         
-        const xt = Math.floor(xTex * texWall.width);
-        const yt = Math.floor(yTex * texWall.height);
+        const xt = Math.floor(xTex * 256);
+        const yt = Math.floor(yTex * 256);
         
-        const [ R, G, B ] = texWall.getRGB(xt, yt);
+        const [ R, G, B ] = [ xt, yt, 255]; // texWall.getRGB(xt, yt);
         
         this.putRGBShade(x, y, yRot, R, G, B);
       }
@@ -90,9 +84,6 @@ export class Renderer {
   
   renderMap(map, pos, dir)
   {
-    if (!texWall)
-      return;
-    
     const cosDir = Math.cos(dir);
     const sinDir = Math.sin(dir);
     
@@ -106,7 +97,8 @@ export class Renderer {
       const yRayDir = xCam * sinDir + cosDir;
       
       const rayHit = map.rayCast(pos, new Vector2(xRayDir, yRayDir));
-      
+      const texWall = map.getTile(rayHit.xMap, rayHit.yMap).tex;
+
       let wallDist, xWall;
       if (rayHit.side) {
         wallDist = rayHit.xDist;
@@ -136,7 +128,7 @@ export class Renderer {
           const xTex = Math.floor(xWall * texWall.width);
           const yTex = Math.floor(yWall * texWall.height);
           
-          const [ R, G, B ] = texWall.getRGB(xTex, yTex);
+          const [ R, G, B, A ] = texWall.getRGBA(xTex, yTex);
           
           this.putRGBShade(x, y, wallDist, R, G, B);
         } else {
@@ -148,10 +140,15 @@ export class Renderer {
           const xPixel = xDepth * cosDir - zDepth * sinDir + pos.x;
           const yPixel = xDepth * sinDir + zDepth * cosDir + pos.y;
           
-          const xp = Math.floor(xPixel * texWall.width) % texWall.width;
-          const yp = Math.floor(yPixel * texWall.height) % texWall.height;
+          const xTile = Math.floor(xPixel);
+          const yTile = Math.floor(yPixel);
           
-          const [ R, G, B ] = texWall.getRGB(xp, yp);
+          const texFloor = map.getTile(xTile, yTile).tex;
+          
+          const xTex = Math.floor(xPixel * texFloor.width) % texFloor.width;
+          const yTex = Math.floor(yPixel * texFloor.height) % texFloor.height;
+          
+          const [ R, G, B, A ] = texFloor.getRGBA(xTex, yTex);
           
           this.putRGBShade(x, y, zDepth, R, G, B);
         }

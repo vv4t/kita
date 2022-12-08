@@ -11,43 +11,38 @@ class RayHit {
   }
 };
 
-export class Tile {
-  constructor(solid)
-  {
-    this.solid = solid;
-  }
-};
-
 export class Map {
-  constructor()
+  constructor(spriteMap)
   {
     this.width = 16;
     this.height = 16;
+    this.spriteMap = spriteMap;
     
     this.tiles = [];
     for (let y = 0; y < this.height; y++) {
       const row = [];
       
       for (let x = 0; x < this.width; x++) {
-        if (rand() > -0.4)
-          row.push(new Tile(false));
+        if (rand() < -0.4)
+          row.push(1);
+        else if (rand() < -0.3)
+          row.push(2);
         else
-          row.push(new Tile(true));
+          row.push(0);
       }
       
       this.tiles.push(row);
     }
     
-    this.voidTile = new Tile(true);
+    this.voidTile = 1;
   }
   
   getTile(x, y)
   {
-    if (x < 0 || y < 0 || x >= this.width || y >= this.height) {
-      return this.voidTile;
-    }
+    if (x < 0 || y < 0 || x >= this.width || y >= this.height)
+      return this.spriteMap.getTile(this.voidTile);
     
-    return this.tiles[y][x];
+    return this.spriteMap.getTile(this.tiles[y][x]);
   }
 
   rayCast(rayPos, rayDir)
