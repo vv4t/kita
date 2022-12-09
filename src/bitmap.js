@@ -28,6 +28,20 @@ export class Bitmap {
     this.dataU8[i + 2] = b;
   }
   
+  getRGB(x, y)
+  {
+    if (x < 0 || y < 0 || x >= this.width || y >= this.height)
+      return [ 0, 0, 0 ];
+    
+    const i = (x + y * this.width) * 4;
+    
+    return [
+      this.dataU8[i + 0],
+      this.dataU8[i + 1],
+      this.dataU8[i + 2]
+    ];
+  }
+  
   swap()
   {
     this.ctx.putImageData(this.data, 0, 0);
