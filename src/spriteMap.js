@@ -1,14 +1,7 @@
 import { fileLoad } from "./file.js";
 import { Texture, textureLoad } from "./texture.js";
 
-class SprConfig {
-  constructor(solid)
-  {
-    this.solid == solid;
-  }
-};
-
-export class Tile {
+export class SprConfig {
   constructor(solid, tex)
   {
     this.solid = solid;
@@ -17,20 +10,20 @@ export class Tile {
 };
 
 class SpriteMap {
-  constructor(sprArr)
+  constructor(spriteArr)
   {
-    this.sprArr = sprArr;
+    this.spriteArr = spriteArr;
   }
   
-  getTile(id)
+  getSprite(id)
   {
-    return this.sprArr[id];
+    return this.spriteArr[id];
   }
 };
 
 export function spriteMapLoad(sprPath, onLoad)
 {
-  fileLoad(sprPath, (sprFileText) => {
+  fileLoad("assets/spr/" + sprPath + ".spr", (sprFileText) => {
     const sprFile = JSON.parse(sprFileText);
     const sprTexPath = "assets/spr/" + sprFile.src + ".png";
     
@@ -69,7 +62,7 @@ export function spriteMapLoad(sprPath, onLoad)
             solid = sprConfig.solid;
           }
           
-          sprArr.push(new Tile(solid, tex));
+          sprArr.push(new SprConfig(solid, tex));
         }
       }
       

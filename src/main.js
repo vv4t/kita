@@ -1,8 +1,7 @@
 import { Bitmap } from "./bitmap.js";
 import { rand, clamp, degToRad, Vector2 } from "./math.js";
-import { Map } from "./map.js";
+import { mapLoad } from "./map.js";
 import { Renderer } from "./renderer.js";
-import { spriteMapLoad } from "./spriteMap.js";
 
 const canvas = document.getElementById("canvas");
 
@@ -12,9 +11,7 @@ ctx.imageSmoothingEnabled = false;
 const bitmap = new Bitmap(256, 144);
 const renderer = new Renderer(bitmap);
 
-spriteMapLoad("assets/spr/nexus.spr", (spriteMap) => {
-  const map = new Map(spriteMap);
-  
+mapLoad("nexus", (map) => {
   let playerPos = new Vector2(5, 5);
   let playerDir = 0;
 

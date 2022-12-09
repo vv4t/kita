@@ -1,4 +1,6 @@
 import { rand } from "./math.js";
+import { fileLoad } from "./file.js";
+import { spriteMapLoad } from "./spriteMap.js";
 
 class RayHit {
   constructor(side, xDist, yDist, xMap, yMap)
@@ -12,37 +14,21 @@ class RayHit {
 };
 
 export class Map {
-  constructor(spriteMap)
+  constructor(spriteMap, width, height)
   {
-    this.width = 16;
-    this.height = 16;
+    this.width = width;
+    this.height = height;
+    this.tiles = new Uint8Array(this.width * this.height);
     this.spriteMap = spriteMap;
-    
-    this.tiles = [];
-    for (let y = 0; y < this.height; y++) {
-      const row = [];
-      
-      for (let x = 0; x < this.width; x++) {
-        if (rand() < -0.4)
-          row.push(1);
-        else if (rand() < -0.3)
-          row.push(2);
-        else
-          row.push(0);
-      }
-      
-      this.tiles.push(row);
-    }
-    
     this.voidTile = 1;
   }
   
   getTile(x, y)
   {
     if (x < 0 || y < 0 || x >= this.width || y >= this.height)
-      return this.spriteMap.getTile(this.voidTile);
+      return this.spriteMap.getSprite(this.voidTile);
     
-    return this.spriteMap.getTile(this.tiles[y][x]);
+    return this.spriteMap.getSprite(this.tiles[x + y * this.width]);
   }
 
   rayCast(rayPos, rayDir)
@@ -91,3 +77,18 @@ export class Map {
     return new RayHit(side, xDist, yDist, xMap, yMap);
   }
 };
+
+export function mapLoad(mapPath, onLoad)
+{
+  fileLoad("assets/map/" + mapPath + ".map", (mapFileText) => {
+    const mapFile = JSON.parse(mapFileText);
+    spriteMapLoad(mapFile.sprFile, (spriteMap) => {
+      const map = new Map(spriteMap, mapFile.width, mapFile.height);
+      
+      for (let i = 0; i < mapFile.width * mapFile.height; i++)
+        map.tiles[i] = mapFile.data[i];
+      
+      onLoad(map);
+    });
+  });
+}

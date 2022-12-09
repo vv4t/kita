@@ -1,6 +1,8 @@
 import { clamp, Vector2 } from "./math.js";
 import { textureLoad } from "./texture.js";
 
+const FOG_COLOR = [ 0, 0, 0 ];
+
 export class Renderer {
   constructor(bitmap)
   {
@@ -158,11 +160,16 @@ export class Renderer {
   
   putRGBShade(x, y, zDepth, R, G, B)
   {
-    const brightness = Math.min(1.0 / zDepth, 1.0);
+    const lerp2 = 10.0 / (zDepth * zDepth * zDepth);
+    const lerp = 1.0 - Math.min(lerp2, 1.0);
     
-    const shadeR = clamp(Math.floor(R * brightness), 0, 255);
-    const shadeG = clamp(Math.floor(G * brightness), 0, 255);
-    const shadeB = clamp(Math.floor(B * brightness), 0, 255);
+    const dR = FOG_COLOR[0] - R;
+    const dG = FOG_COLOR[1] - G;
+    const dB = FOG_COLOR[2] - B;
+    
+    const shadeR = Math.floor(R + dR * lerp);
+    const shadeG = Math.floor(G + dG * lerp);
+    const shadeB = Math.floor(B + dB * lerp);
     
     this.bitmap.putRGB(x, y, shadeR, shadeG, shadeB);
   }

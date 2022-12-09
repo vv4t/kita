@@ -69,9 +69,9 @@ function main()
   const tsxPath = process.argv[2];
   const sprPath = process.argv[3];
   
-  const spr = tsxToSpr(tsxPath);
+  const sprFile = tsxToSpr(tsxPath);
   
-  fs.writeFileSync(sprPath, JSON.stringify(spr));
+  fs.writeFileSync(sprPath, JSON.stringify(sprFile));
 }
 
 main();
