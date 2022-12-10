@@ -30,7 +30,9 @@ export function spriteMapLoad(sprPath, onLoad)
     textureLoad(sprTexPath, (sprTex) => {
       const sprArr = [];
       
-      for (let i = 0; i < sprFile.sprCount; i += sprFile.columns) {
+      const numRow = Math.floor(sprFile.sprCount / sprFile.columns);
+      
+      for (let i = 0; i < numRow; i++) {
         for (let j = 0; j < sprFile.columns; j++) {
           const tex = new Texture(sprFile.sprWidth, sprFile.sprHeight);
           
@@ -53,7 +55,7 @@ export function spriteMapLoad(sprPath, onLoad)
             }
           }
           
-          const tID = i + j;
+          const tID = i * sprFile.columns + j;
           const sprConfig = sprFile.sprConfig[tID];
           
           let solid = false;

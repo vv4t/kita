@@ -155,7 +155,9 @@ export class Renderer {
   
   putRGBAShade(x, y, zDepth, R, G, B, A)
   {
-    if (A < 255) {
+    if (A == 0) {
+      return;
+    } else if (A < 255) {
       const [ bgR, bgG, bgB ] = this.bitmap.getRGB(x, y);
       
       const dR = R - bgR;

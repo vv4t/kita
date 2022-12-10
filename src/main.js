@@ -2,7 +2,9 @@ import { Bitmap } from "./bitmap.js";
 import { rand, clamp, degToRad, Vector2 } from "./math.js";
 import { mapLoad } from "./map.js";
 import { textureLoad } from "./texture.js";
+import { spriteMapLoad } from "./spriteMap.js";
 import { Renderer } from "./renderer.js";
+import { GUI } from "./gui.js";
 
 const canvas = document.getElementById("canvas");
 
@@ -11,9 +13,10 @@ ctx.imageSmoothingEnabled = false;
 
 const bitmap = new Bitmap(256, 144);
 const renderer = new Renderer(bitmap);
+const gui = new GUI(bitmap);
 
 mapLoad("nexus", (map) => {
-  textureLoad("assets/spr/entity.png", (entitySprite) => {
+  spriteMapLoad("font", (fontSpriteMap) => {
     let playerPos = new Vector2(5, 5);
     let playerDir = 0;
 
@@ -63,7 +66,7 @@ mapLoad("nexus", (map) => {
       playerPos.add(moveDir.rotate(playerDir));
       
       renderer.renderMap(map, playerPos, playerDir);
-      renderer.renderSprite(entitySprite, new Vector2(5.5, 5.5), playerPos, playerDir);
+      gui.drawText(fontSpriteMap, "hello there!!! 123", 10, 40);
       bitmap.swap();
       ctx.drawImage(bitmap.canvas, 0, 0, canvas.width, canvas.height);
       

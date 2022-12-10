@@ -35,17 +35,18 @@ function tsxToSpr(tsxPath)
   const parser = new XMLParser(options);
   const tileset = parser.parse(xmlData).tileset;
   
-  const tiles = [].concat(tileset.tile);
-  
   const sprConfig = {};
-  
-  for (const tile of tiles) {
-    const properties = [].concat(tile.properties);
+  if (tileset.tile) {
+    const tiles = [].concat(tileset.tile);
     
-    const id = parseInt(tile.id);
-    const solid = properties.find(x => x.property.name == 'solid').property.value == "true";
-    
-    sprConfig[id] = new SprConfig(solid);
+    for (const tile of tiles) {
+      const properties = [].concat(tile.properties);
+      
+      const id = parseInt(tile.id);
+      const solid = properties.find(x => x.property.name == 'solid').property.value == "true";
+      
+      sprConfig[id] = new SprConfig(solid);
+    }
   }
   
   const src = path.parse(tileset.image.source).name;
