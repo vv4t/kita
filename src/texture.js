@@ -38,9 +38,11 @@ export function textureLoad(path, onLoad)
     const texture = new Texture(img.width, img.height);
     
     const canvas = document.createElement("CANVAS");
+    canvas.width = img.width;
+    canvas.height = img.height;
     const ctx = canvas.getContext("2d");
     ctx.drawImage(img, 0, 0);
-    const data = ctx.getImageData(0, 0, this.width, this.height);
+    const data = ctx.getImageData(0, 0, img.width, img.height);
     const dataBuffer = new Uint8Array(data.data.buffer);
     
     for (let i = 0; i < texture.width * texture.height * 4; i++)

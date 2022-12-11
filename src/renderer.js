@@ -3,6 +3,12 @@ import { textureLoad } from "./texture.js";
 
 const FOG_COLOR = [ 0, 0, 0 ];
 
+let skyTex;
+
+textureLoad("assets/sky/bocchi.png", (tex) => {
+  skyTex = tex;
+});
+
 export class Renderer {
   constructor(bitmap)
   {
@@ -119,7 +125,21 @@ export class Renderer {
       const yWallStep = 0.5 / wallHeight;
       
       for (let y = 0; y < this.bitmap.height; y++) {
-        if (y > yPixel0 && y < yPixel1) {
+        if (y <= yPixel0) {
+          let xTex = Math.floor(x - dir * this.bitmap.width);
+          
+          if (xTex < 0)
+            xTex = skyTex.width - xTex;
+          if (xTex >= skyTex.width)
+            xTex = xTex % skyTex.width;
+          
+          const [ R, G, B, A ] = skyTex.getRGBA(xTex, y);
+          
+          const yCam = (y - this.halfHeight) / this.bitmap.width;
+          const zDepth = Math.abs(0.5 / yCam);
+          
+          this.putRGBAShade(x, y, zDepth, R, G, B, 255);
+        } else if (y > yPixel0 && y < yPixel1) {
           yWall += yWallStep;
           
           const xTex = Math.floor(xWall * texWall.width);
@@ -142,8 +162,11 @@ export class Renderer {
           
           const texFloor = map.getTile(xTile, yTile).tex;
           
-          const xTex = Math.floor(xPixel * texFloor.width) % texFloor.width;
-          const yTex = Math.floor(yPixel * texFloor.height) % texFloor.height;
+          const xTex = Math.floor((xPixel - Math.floor(xPixel)) * texFloor.width);
+          const yTex = Math.floor((yPixel - Math.floor(yPixel)) * texFloor.height);
+          
+          // const xTex = Math.floor(xPixel * texFloor.width) % texFloor.width;
+          // const yTex = Math.floor(yPixel * texFloor.height) % texFloor.height;
           
           const [ R, G, B, A ] = texFloor.getRGBA(xTex, yTex);
           
