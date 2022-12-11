@@ -66,7 +66,8 @@ mapLoad("nexus", (map) => {
       playerPos.add(moveDir.rotate(playerDir));
       
       renderer.renderMap(map, playerPos, playerDir);
-      gui.drawText(fontSpriteMap, "hello there!!! 123", 10, 40);
+      gui.drawText(fontSpriteMap, "mary had a little lamb", 10, 40);
+      gui.drawText(fontSpriteMap, "little lamb 234!!", 10, 48);
       bitmap.swap();
       ctx.drawImage(bitmap.canvas, 0, 0, canvas.width, canvas.height);
       
