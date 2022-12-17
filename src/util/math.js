@@ -1,20 +1,53 @@
 
-export class Vector2 {
-  constructor(x, y)
+export class Vector3 {
+  constructor(x, y, z)
   {
     this.x = x;
     this.y = y;
+    this.z = z;
   }
   
   add(v)
   {
     this.x += v.x;
     this.y += v.y;
+    this.z += v.z;
     
     return this;
   }
   
-  rotate(angle)
+  mulf(f)
+  {
+    this.x *= f;
+    this.y *= f;
+    this.z *= f;
+    
+    return this;
+  }
+  
+  dot(v)
+  {
+    return this.x * v.x + this.y * v.y + this.z * v.z;
+  }
+  
+  normalize()
+  {
+    const vecLength = this.length();
+    if (vecLength == 0) {
+      this.x = 0;
+      this.y = 0;
+      this.z = 0;
+    } else {
+      this.mulf(1.0 / vecLength);
+    }
+  }
+  
+  length()
+  {
+    return Math.sqrt(this.dot(this));
+  }
+  
+  rotateZ(angle)
   {
     const cosAngle = Math.cos(angle);
     const sinAngle = Math.sin(angle);

@@ -1,5 +1,5 @@
-import { clamp, Vector2 } from "./math.js";
 import { textureLoad } from "./texture.js";
+import { clamp, Vector3 } from "../util/math.js";
 
 const FOG_COLOR = [ 0, 0, 0 ];
 
@@ -12,10 +12,17 @@ textureLoad("assets/sky/bocchi.png", (tex) => {
 export class Renderer {
   constructor(bitmap)
   {
+    this.fov = 2.0;
     this.bitmap = bitmap;
     this.halfWidth = this.bitmap.width / 2.0;
     this.halfHeight = this.bitmap.height / 2.0;
     this.zBuffer = new Float32Array(this.bitmap.width);
+  }
+  
+  renderGame(game)
+  {
+    if (game.map)
+      this.renderMap(game.map, game.player.pos, game.player.rot);
   }
   
   renderSprite(spriteTex, spritePos, camPos, camDir)
@@ -30,7 +37,7 @@ export class Renderer {
     const yRot = xCam * sinDir + yCam * cosDir;
     
     const xScreen = xRot / yRot * this.bitmap.width + this.halfWidth;
-    const spriteSize = this.bitmap.width / yRot;
+    const spriteSize = this.fov * this.bitmap.width / yRot;
     
     const texStep = 1.0 / spriteSize;
     
@@ -85,21 +92,18 @@ export class Renderer {
     }
   }
   
-  renderMap(map, pos, dir)
+  renderMap(map, pos, rot)
   {
-    const cosDir = Math.cos(dir);
-    const sinDir = Math.sin(dir);
+    const cosDir = Math.cos(rot);
+    const sinDir = Math.sin(rot);
     
     for (let x = 0; x < this.bitmap.width; x++) {
-      const xCam = (x - this.halfWidth) / this.bitmap.width;
+      const xCam = this.fov * (x - this.halfWidth) / this.bitmap.width;
       
-      // near_plane: Vector3(0, 1)
-      //   Vector2(0, 1).rotate(dir) + Vector2(xCam, 0).rotate(dir)
-      // = Vector2(xCam, 1).rotate(dir)
       const xRayDir = xCam * cosDir - sinDir;
       const yRayDir = xCam * sinDir + cosDir;
       
-      const rayHit = map.rayCast(pos, new Vector2(xRayDir, yRayDir));
+      const rayHit = map.rayCast(pos, new Vector3(xRayDir, yRayDir, 0.0));
       const texWall = map.getTile(rayHit.xMap, rayHit.yMap).tex;
 
       let wallDist, xWall;
@@ -113,7 +117,7 @@ export class Renderer {
       
       this.zBuffer[x] = wallDist;
       
-      const wallHeight = 0.5 / wallDist * this.bitmap.width;
+      const wallHeight = 0.5 / (this.fov * wallDist) * this.bitmap.width;
       
       const yPixel0 = Math.floor(this.halfHeight - wallHeight);
       const yPixel1 = Math.ceil(this.halfHeight + wallHeight);
@@ -126,7 +130,7 @@ export class Renderer {
       
       for (let y = 0; y < this.bitmap.height; y++) {
         if (y <= yPixel0) {
-          let xTex = Math.floor(x - dir * this.bitmap.width);
+          let xTex = Math.floor(x - rot * this.bitmap.width);
           
           if (xTex < 0)
             xTex = skyTex.width - xTex;
@@ -135,7 +139,7 @@ export class Renderer {
           
           const [ R, G, B, A ] = skyTex.getRGBA(xTex, y);
           
-          const yCam = (y - this.halfHeight) / this.bitmap.width;
+          const yCam = this.fov * (y - this.halfHeight) / this.bitmap.width;
           const zDepth = Math.abs(0.5 / yCam);
           
           this.putRGBAShade(x, y, zDepth, R, G, B, 255);
@@ -149,7 +153,7 @@ export class Renderer {
           
           this.putRGBShade(x, y, wallDist, R, G, B);
         } else {
-          const yCam = (y - this.halfHeight) / this.bitmap.width;
+          const yCam = this.fov * (y - this.halfHeight) / this.bitmap.width;
           const zDepth = Math.abs(0.5 / yCam);
           
           const xDepth = xCam * zDepth;

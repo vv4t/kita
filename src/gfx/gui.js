@@ -1,4 +1,3 @@
-
 const ALPHA_BEGIN = "a".charCodeAt(0);
 const ALPHA_END = "z".charCodeAt(0);
 const NUM_BEGIN = "0".charCodeAt(0);

@@ -1,5 +1,5 @@
-import { fileLoad } from "./file.js";
 import { Texture, textureLoad } from "./texture.js";
+import { fileLoad } from "../util/file.js";
 
 export class SprConfig {
   constructor(solid, tex)

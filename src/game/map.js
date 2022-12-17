@@ -1,6 +1,6 @@
-import { rand } from "./math.js";
-import { fileLoad } from "./file.js";
-import { spriteMapLoad } from "./spriteMap.js";
+import { rand } from "../util//math.js";
+import { fileLoad } from "../util/file.js";
+import { spriteMapLoad } from "../gfx/spriteMap.js";
 
 class RayHit {
   constructor(side, xDist, yDist, xMap, yMap)
@@ -29,6 +29,19 @@ export class Map {
       return this.spriteMap.getSprite(this.voidTile);
     
     return this.spriteMap.getSprite(this.tiles[x + y * this.width]);
+  }
+  
+  collide(xPos, yPos, xBox, yBox)
+  {
+    const x0 = Math.floor(xPos - xBox);
+    const x1 = Math.floor(xPos + xBox);
+    const y0 = Math.floor(yPos - yBox);
+    const y1 = Math.floor(yPos + yBox);
+    
+    return this.getTile(x0, y0).solid ||
+    this.getTile(x1, y0).solid ||
+    this.getTile(x0, y1).solid ||
+    this.getTile(x1, y1).solid;
   }
 
   rayCast(rayPos, rayDir)
