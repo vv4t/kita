@@ -6,7 +6,7 @@ export class Game {
   constructor()
   {
     this.map = null;
-    this.player = new Player(new Vector3(3.0, 3.0, 0.5), 0.0);
+    this.player = new Player(new Vector3(3.0, 3.0, 0.2), 0.0);
   }
   
   update(delta, userCommand)

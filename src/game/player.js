@@ -8,20 +8,28 @@ export class Player {
     this.moveSpeed = 4.0;
     this.xBox = 0.1;
     this.yBox = 0.1;
+    this.time = 0.0;
   }
   
   lookMove(delta, userCommand, map)
   {
-    const moveDir = new Vector3(userCommand.side, userCommand.forward, 0.0);
-    moveDir.rotateZ(userCommand.rot);
-    moveDir.normalize();
-    moveDir.mulf(this.moveSpeed * delta);
-    
-    if (map)
-      this.clipMoveDir(moveDir, map);
-    
-    this.pos.add(moveDir);
+    this.time += delta;
     this.rot = userCommand.rot;
+    
+    if (userCommand.side || userCommand.forward) {
+      const moveDir = new Vector3(userCommand.side, userCommand.forward, 0.0);
+      moveDir.rotateZ(userCommand.rot);
+      moveDir.normalize();
+      moveDir.mulf(this.moveSpeed * delta);
+      
+      if (map)
+        this.clipMoveDir(moveDir, map);
+      
+      this.pos.add(moveDir);
+      this.pos.z = 0.1 + Math.cos(this.time * 10) * 0.03;
+    } else {
+      this.pos.z = 0.1;
+    }
   }
   
   clipMoveDir(moveDir, map)

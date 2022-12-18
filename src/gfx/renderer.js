@@ -3,12 +3,6 @@ import { clamp, Vector3 } from "../util/math.js";
 
 const FOG_COLOR = [ 0, 0, 0 ];
 
-let skyTex;
-
-textureLoad("assets/sky/bocchi.png", (tex) => {
-  skyTex = tex;
-});
-
 export class Renderer {
   constructor(bitmap)
   {
@@ -23,6 +17,8 @@ export class Renderer {
   {
     if (game.map)
       this.renderMap(game.map, game.player.pos, game.player.rot);
+    
+    this.renderWall(null, new Vector3(4.0, 3.0, 0.0), new Vector3(3.0, 3.0, 0.0), game.player.pos, game.player.rot);
   }
   
   renderSprite(spriteTex, spritePos, camPos, camDir)
@@ -32,23 +28,25 @@ export class Renderer {
     
     const xCam = spritePos.x - camPos.x;
     const yCam = spritePos.y - camPos.y;
+    const zCam = -spritePos.z + camPos.z;
     
     const xRot = xCam * cosDir - yCam * sinDir;
     const yRot = xCam * sinDir + yCam * cosDir;
     
-    const xScreen = xRot / yRot * this.bitmap.width + this.halfWidth;
-    const spriteSize = this.fov * this.bitmap.width / yRot;
+    if (yRot < 0.01)
+      return;
     
-    const texStep = 1.0 / spriteSize;
+    const distFactor = this.bitmap.width / (yRot * this.fov);
+    const texStep = 1.0 / distFactor;
     
-    let xPixel0 = xScreen - 0.5 * spriteSize;
-    let xPixel1 = xScreen + 0.5 * spriteSize;
-    let yPixel0 = this.halfHeight - 0.5 * spriteSize;
-    let yPixel1 = this.halfHeight + 0.5 * spriteSize;
+    let xPixel0 = (xRot - 0.5) * distFactor + this.halfWidth;
+    let xPixel1 = (xRot + 0.5) * distFactor + this.halfWidth;
+    let yPixel0 = (zCam - 0.5) * distFactor + this.halfHeight;
+    let yPixel1 = (zCam + 0.5) * distFactor + this.halfHeight;
     
     let xTex = 0;
     if (xPixel0 < 0) {
-      xTex = -xPixel0 / spriteSize;
+      xTex = -xPixel0 / distFactor;
       xPixel0 = 0;
     }
     
@@ -57,7 +55,7 @@ export class Renderer {
     
     let yTexStart = 0;
     if (yPixel0 < 0) {
-      yTexStart = -yPixel0 / spriteSize;
+      yTexStart = -yPixel0 / distFactor;
       yPixel0 = 0;
     }
     
@@ -66,7 +64,6 @@ export class Renderer {
     
     const xp0 = Math.floor(xPixel0);
     const xp1 = Math.floor(xPixel1);
-    
     const yp0 = Math.floor(yPixel0);
     const yp1 = Math.floor(yPixel1);
     
@@ -89,6 +86,73 @@ export class Renderer {
         
         this.putRGBAShade(x, y, yRot, R, G, B, A);
       }
+    }
+  }
+  
+  renderWall(wallTex, wallStart, wallEnd, camPos, camDir)
+  {
+    let startPos = wallStart.sub(camPos);
+    let endPos = wallEnd.sub(camPos);
+    startPos.rotateZ(-camDir);
+    endPos.rotateZ(-camDir);
+    
+    if (startPos.x > endPos.x) {
+      const tmp = startPos;
+      startPos = endPos;
+      endPos = tmp;
+    }
+    
+    const distFactor0 = this.bitmap.width / (startPos.y * this.fov);
+    const distFactor1 = this.bitmap.width / (endPos.y * this.fov);
+    
+    let xPixel0 = startPos.x * distFactor0 + this.halfWidth;
+    let xPixel1 = endPos.x * distFactor1 + this.halfWidth;
+    
+    const xDelta = 1.0 / (xPixel1 - xPixel0);
+    
+    let yPixel00 = (-startPos.z - 0.5) * distFactor0 + this.halfHeight;
+    let yPixel10 = (-startPos.z - 0.5) * distFactor1 + this.halfHeight;
+    let yPixel01 = (-endPos.z + 0.5) * distFactor0 + this.halfHeight;
+    let yPixel11 = (-endPos.z + 0.5) * distFactor1 + this.halfHeight;
+    
+    const yDelta0 = (yPixel10 - yPixel00) * xDelta;
+    const yDelta1 = (yPixel11 - yPixel01) * xDelta;
+    
+    const iz0 = 1.0 / startPos.y;
+    const iz1 = 1.0 / endPos.y;
+    
+    const zDelta = (iz1 - iz0) * xDelta;
+    
+    let yPixel0 = yPixel00;
+    let yPixel1 = yPixel01;
+    let zDepth = iz0;
+    
+    const xp0 = Math.floor(xPixel0);
+    const xp1 = Math.floor(xPixel1);
+    
+    for (let x = xp0; x < xp1; x++) {
+      const zInterp = (1.0 / zDepth - startPos.y) / (endPos.y - startPos.y);
+      const xTex = zInterp;
+      
+      const xt = Math.floor(xTex * 256);
+      
+      const yp0 = Math.floor(yPixel0);
+      const yp1 = Math.floor(yPixel1);
+      
+      const yTexelStep = 1.0 / (yPixel1 - yPixel0);
+      
+      let yTex = 0;
+      for (let y = yp0; y < yp1; y++) {
+        const yt = Math.floor(yTex * 256);
+        
+        this.bitmap.putRGB(x, y, xt, yt, 0);
+        
+        yTex += yTexelStep;
+      }
+      
+      yPixel0 += yDelta0;
+      yPixel1 += yDelta1;
+      zDepth += zDelta;
     }
   }
   
@@ -117,19 +181,21 @@ export class Renderer {
       
       this.zBuffer[x] = wallDist;
       
-      const wallHeight = 0.5 / (this.fov * wallDist) * this.bitmap.width;
+      const wallStart = (-0.5 + pos.z) / (this.fov * wallDist) * this.bitmap.width;
+      const wallEnd = (+0.5 + pos.z) / (this.fov * wallDist) * this.bitmap.width;
+      const wallHeight = wallEnd - wallStart;
       
-      const yPixel0 = Math.floor(this.halfHeight - wallHeight);
-      const yPixel1 = Math.ceil(this.halfHeight + wallHeight);
+      const yPixel0 = Math.floor(this.halfHeight + wallStart);
+      const yPixel1 = Math.ceil(this.halfHeight + wallEnd);
       
       let yWall = 0;
       if (yPixel0 < 0)
-        yWall = -yPixel0 / (wallHeight * 2.0);
+        yWall = -yPixel0 / wallHeight;
       
-      const yWallStep = 0.5 / wallHeight;
+      const yWallStep = 1.0 / wallHeight;
       
       for (let y = 0; y < this.bitmap.height; y++) {
-        if (y <= yPixel0) {
+        if (y < 0) {
           let xTex = Math.floor(x - rot * this.bitmap.width);
           
           if (xTex < 0)
@@ -154,7 +220,15 @@ export class Renderer {
           this.putRGBShade(x, y, wallDist, R, G, B);
         } else {
           const yCam = this.fov * (y - this.halfHeight) / this.bitmap.width;
-          const zDepth = Math.abs(0.5 / yCam);
+          
+          let zDepth;
+          if (yCam < 0)
+            zDepth = (-0.5 + pos.z) / yCam;
+          else
+            zDepth = (+0.5 + pos.z) / Math.max(yCam, 0.001);
+          
+          if (zDepth < 0.0)
+            continue;
           
           const xDepth = xCam * zDepth;
           
@@ -168,9 +242,6 @@ export class Renderer {
           
           const xTex = Math.floor((xPixel - Math.floor(xPixel)) * texFloor.width);
           const yTex = Math.floor((yPixel - Math.floor(yPixel)) * texFloor.height);
-          
-          // const xTex = Math.floor(xPixel * texFloor.width) % texFloor.width;
-          // const yTex = Math.floor(yPixel * texFloor.height) % texFloor.height;
           
           const [ R, G, B, A ] = texFloor.getRGBA(xTex, yTex);
           
@@ -205,7 +276,7 @@ export class Renderer {
   
   putRGBShade(x, y, zDepth, R, G, B)
   {
-    const lerp2 = 10.0 / (zDepth * zDepth * zDepth);
+    const lerp2 = 5.0 / (zDepth * zDepth);
     const lerp = 1.0 - Math.min(lerp2, 1.0);
     
     const dR = FOG_COLOR[0] - R;

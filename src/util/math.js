@@ -16,6 +16,15 @@ export class Vector3 {
     return this;
   }
   
+  sub(v)
+  {
+    this.x -= v.x;
+    this.y -= v.y;
+    this.z -= v.z;
+    
+    return this;
+  }
+  
   mulf(f)
   {
     this.x *= f;
