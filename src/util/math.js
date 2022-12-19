@@ -72,7 +72,7 @@ export class Vector3 {
   
   copy()
   {
-    return new Vector2(x, y);
+    return new Vector3(this.x, this.y, this.z);
   }
 };
 

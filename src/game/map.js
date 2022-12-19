@@ -18,7 +18,7 @@ export class Map {
   {
     this.width = width;
     this.height = height;
-    this.tiles = new Uint8Array(this.width * this.height);
+    this.tiles = new Uint32Array(this.width * this.height);
     this.spriteMap = spriteMap;
     this.voidTile = 1;
   }
@@ -28,7 +28,7 @@ export class Map {
     if (x < 0 || y < 0 || x >= this.width || y >= this.height)
       return this.spriteMap.getSprite(this.voidTile);
     
-    return this.spriteMap.getSprite(this.tiles[x + y * this.width]);
+    return this.spriteMap.getSprite(this.tiles[x + y * this.width] & 0xff);
   }
   
   collide(xPos, yPos, xBox, yBox)

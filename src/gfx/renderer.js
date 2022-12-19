@@ -11,6 +11,7 @@ export class Renderer {
     this.halfWidth = this.bitmap.width / 2.0;
     this.halfHeight = this.bitmap.height / 2.0;
     this.zBuffer = new Float32Array(this.bitmap.width);
+    this.zNear = 0.1;
   }
   
   renderGame(game)
@@ -96,63 +97,113 @@ export class Renderer {
     startPos.rotateZ(-camDir);
     endPos.rotateZ(-camDir);
     
-    if (startPos.x > endPos.x) {
-      const tmp = startPos;
-      startPos = endPos;
-      endPos = tmp;
+    if (startPos.y < this.zNear && endPos.y < this.zNear)
+      return;
+    
+    let zPos0 = startPos.y;
+    let zPos1 = endPos.y;
+    
+    let izEnd = 1.0 / zPos1;
+    let izInterp = 1.0 / zPos0;
+    
+    if (startPos.y < this.zNear) {
+      const posDelta = (endPos.x - startPos.x) / (endPos.y - startPos.y);
+      startPos.x += (this.zNear - startPos.y) * posDelta;
+      startPos.y = this.zNear;
+      izInterp = 1.0 / this.zNear;
     }
     
-    const distFactor0 = this.bitmap.width / (startPos.y * this.fov);
-    const distFactor1 = this.bitmap.width / (endPos.y * this.fov);
+    if (endPos.y < this.zNear) {
+      const posDelta = (startPos.x - endPos.x) / (startPos.y - endPos.y);
+      endPos.x += (this.zNear - endPos.y) * posDelta;
+      endPos.y = this.zNear;
+      izEnd = 1.0 / this.zNear;
+    }
+    
+    let distFactor0 = this.bitmap.width / (startPos.y * this.fov);
+    let distFactor1 = this.bitmap.width / (endPos.y * this.fov);
     
     let xPixel0 = startPos.x * distFactor0 + this.halfWidth;
     let xPixel1 = endPos.x * distFactor1 + this.halfWidth;
     
-    const xDelta = 1.0 / (xPixel1 - xPixel0);
+    let xTex0 = 0.0;
+    let xTexDir = 1.0;
+    
+    if (xPixel0 > xPixel1) {
+      const tmp = xPixel0;
+      xPixel0 = xPixel1;
+      xPixel1 = tmp;
+      
+      const tmp1 = distFactor0;
+      distFactor0 = distFactor1;
+      distFactor1 = tmp1;
+      
+      const tmp2 = izInterp;
+      izInterp = izEnd;
+      izEnd = tmp2;
+      
+      const tmp3 = zPos0;
+      zPos0 = zPos1;
+      zPos1 = tmp3;
+      
+      xTex0 = 1.0;
+      xTexDir = -1.0;
+    }
     
     let yPixel00 = (-startPos.z - 0.5) * distFactor0 + this.halfHeight;
     let yPixel10 = (-startPos.z - 0.5) * distFactor1 + this.halfHeight;
     let yPixel01 = (-endPos.z + 0.5) * distFactor0 + this.halfHeight;
     let yPixel11 = (-endPos.z + 0.5) * distFactor1 + this.halfHeight;
     
+    const xDelta = 1.0 / (xPixel1 - xPixel0);
     const yDelta0 = (yPixel10 - yPixel00) * xDelta;
     const yDelta1 = (yPixel11 - yPixel01) * xDelta;
-    
-    const iz0 = 1.0 / startPos.y;
-    const iz1 = 1.0 / endPos.y;
-    
-    const zDelta = (iz1 - iz0) * xDelta;
+    const izDelta = (izEnd - izInterp) * xDelta;
     
     let yPixel0 = yPixel00;
     let yPixel1 = yPixel01;
-    let zDepth = iz0;
     
-    const xp0 = Math.floor(xPixel0);
+    if (xPixel0 < 0) {
+      yPixel0 += -xPixel0 * yDelta0;
+      yPixel1 += -xPixel0 * yDelta1;
+      izInterp += -xPixel0 * izDelta;
+      xPixel0 = 0;
+    }
+    
+    if (xPixel1 >= this.bitmap.width)
+      xPixel1 = this.bitmap.width;
+    
+    const xp0 = Math.ceil(xPixel0);
     const xp1 = Math.floor(xPixel1);
     
     for (let x = xp0; x < xp1; x++) {
-      const zInterp = (1.0 / zDepth - startPos.y) / (endPos.y - startPos.y);
-      const xTex = zInterp;
+      const zPos = 1.0 / izInterp;
+      if (this.zBuffer[x] < zPos)
+        continue;
+      this.zBuffer[x] = zPos;
       
-      const xt = Math.floor(xTex * 256);
+      const zInterp = (zPos - zPos0) / (zPos1 - zPos0);
       
-      const yp0 = Math.floor(yPixel0);
+      const xTex = xTex0 + xTexDir * zInterp;
+      const xt = Math.floor(xTex * 8);
+      
+      const yp0 = Math.ceil(yPixel0);
       const yp1 = Math.floor(yPixel1);
       
       const yTexelStep = 1.0 / (yPixel1 - yPixel0);
       
       let yTex = 0;
       for (let y = yp0; y < yp1; y++) {
-        const yt = Math.floor(yTex * 256);
+        const yt = Math.floor(yTex * 8);
         
-        this.bitmap.putRGB(x, y, xt, yt, 0);
+        this.putRGBAShade(x, y, zPos, xt * 32, yt * 32, 0, 255);
         
         yTex += yTexelStep;
       }
       
       yPixel0 += yDelta0;
       yPixel1 += yDelta1;
-      zDepth += zDelta;
+      izInterp += izDelta;
     }
   }
   
