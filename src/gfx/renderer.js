@@ -215,7 +215,7 @@ export class Renderer {
       xPixel1 = this.bitmap.width;
     
     const xp0 = Math.floor(xPixel0);
-    const xp1 = Math.ceil(xPixel1);
+    const xp1 = Math.floor(xPixel1);
     
     for (let x = xp0; x < xp1; x++) {
       const zPos = 1.0 / izInterp;
@@ -228,7 +228,7 @@ export class Renderer {
         const xt = Math.floor(xTex * wallTex.height);
         
         const yp0 = Math.floor(yPixel0);
-        const yp1 = Math.ceil(yPixel1);
+        const yp1 = Math.floor(yPixel1);
         
         const yTexelStep = 1.0 / (yPixel1 - yPixel0);
         

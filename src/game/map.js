@@ -1,3 +1,9 @@
+/*
+--- map.js ---
+
+Map class and loading the map
+*/
+
 import { rand } from "../util//math.js";
 import { fileLoad } from "../util/file.js";
 import { spriteMapLoad } from "../gfx/spriteMap.js";
@@ -23,9 +29,14 @@ export class Map {
     this.width = width;
     this.height = height;
     this.walls = walls;
-    this.tiles = new Uint32Array(this.width * this.height);
     this.spriteMap = spriteMap;
-    this.voidTile = 1;
+    
+    // The tile data is stored as
+    this.tiles = new Uint32Array(this.width * this.height);
+    
+    // The tile that is returned when accessing a tile out of bounds
+    this.voidTile = 1; // TODO: remove this and return 0 by default in getTile
+    // I have the default floor tile as 0 which isnt solid i'll fix this later
   }
   
   getWalls()
@@ -46,6 +57,9 @@ export class Map {
     return this.tiles[x + y * this.width];
   }
   
+  // Use AABB to check if a position is colliding with a solid tile
+  // NOTE: this will not work for xBox or yBox > 1.0
+  // That would require some sort of for loop iterating over all the boxes it's in
   collide(xPos, yPos, xBox, yBox)
   {
     const x0 = Math.floor(xPos - xBox);
@@ -58,7 +72,9 @@ export class Map {
     this.spriteMap.getSprite(this.getTile(x0, y1)).solid ||
     this.spriteMap.getSprite(this.getTile(x1, y1)).solid;
   }
-
+  
+  // Cast a ray from a position in a certain direction and return the first wall it hits
+  // TODO: some sort of distance limiter
   rayCast(rayPos, rayDir)
   {
     const xDeltaDist = Math.abs(1.0 / rayDir.x);
@@ -113,6 +129,9 @@ export function mapLoad(mapPath, onLoad)
     spriteMapLoad(mapFile.sprFile, (spriteMap) => {
       const map = new Map(spriteMap, mapFile.width, mapFile.height, mapFile.walls);
       
+      // NOTE: mapFile.data is a JSON array object while map.tiles is a typed array
+      // this is why the for loop is necessary
+      // (i think)
       for (let i = 0; i < mapFile.width * mapFile.height; i++)
         map.tiles[i] = mapFile.data[i];
       
