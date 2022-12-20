@@ -31,6 +31,16 @@ export class Map {
     return this.spriteMap.getSprite(this.tiles[x + y * this.width] & 0xff);
   }
   
+  getRotation(x, y)
+  {
+    const FLIP_MASK = 0xE0000000;
+    
+    if (x < 0 || y < 0 || x >= this.width || y >= this.height)
+      return 0;
+    
+    return (this.tiles[x + y * this.width] & FLIP_MASK) >>> 29;
+  }
+  
   collide(xPos, yPos, xBox, yBox)
   {
     const x0 = Math.floor(xPos - xBox);

@@ -1,8 +1,6 @@
 import { textureLoad } from "./texture.js";
 import { clamp, Vector3 } from "../util/math.js";
 
-const FOG_COLOR = [ 0, 0, 0 ];
-
 export class Renderer {
   constructor(bitmap)
   {
@@ -12,6 +10,10 @@ export class Renderer {
     this.halfHeight = this.bitmap.height / 2.0;
     this.zBuffer = new Float32Array(this.bitmap.width);
     this.zNear = 0.1;
+    this.fogColor = [ 0, 0, 0 ];
+    this.wallTex = null;
+    
+    textureLoad("assets/png/cirno.png", (tex) => this.wallTex = tex );
   }
   
   renderGame(game)
@@ -19,7 +21,11 @@ export class Renderer {
     if (game.map)
       this.renderMap(game.map, game.player.pos, game.player.rot);
     
-    this.renderWall(null, new Vector3(4.0, 3.0, 0.0), new Vector3(3.0, 3.0, 0.0), game.player.pos, game.player.rot);
+    this.renderWall(
+      this.wallTex,
+      new Vector3(4.0, 3.0, 0.0),
+      new Vector3(3.0, 3.0, 0.0),
+      game.player.pos, game.player.rot);
   }
   
   renderSprite(spriteTex, spritePos, camPos, camDir)
@@ -185,7 +191,7 @@ export class Renderer {
       const zInterp = (zPos - zPos0) / (zPos1 - zPos0);
       
       const xTex = xTex0 + xTexDir * zInterp;
-      const xt = Math.floor(xTex * 8);
+      const xt = Math.floor(xTex * wallTex.height);
       
       const yp0 = Math.ceil(yPixel0);
       const yp1 = Math.floor(yPixel1);
@@ -194,9 +200,11 @@ export class Renderer {
       
       let yTex = 0;
       for (let y = yp0; y < yp1; y++) {
-        const yt = Math.floor(yTex * 8);
+        const yt = Math.floor(yTex * wallTex.height);
         
-        this.putRGBAShade(x, y, zPos, xt * 32, yt * 32, 0, 255);
+        const [ R, G, B, A ] = wallTex.getRGBA(xt, yt);
+        
+        this.putRGBAShade(x, y, zPos, R, G, B, A);
         
         yTex += yTexelStep;
       }
@@ -290,11 +298,26 @@ export class Renderer {
           const yTile = Math.floor(yPixel);
           
           const texFloor = map.getTile(xTile, yTile).tex;
+          const texRotation = map.getRotation(xTile, yTile);
           
-          const xTex = Math.floor((xPixel - Math.floor(xPixel)) * texFloor.width);
-          const yTex = Math.floor((yPixel - Math.floor(yPixel)) * texFloor.height);
+          let xTex = (xPixel - Math.floor(xPixel));
+          let yTex = (yPixel - Math.floor(yPixel));
           
-          const [ R, G, B, A ] = texFloor.getRGBA(xTex, yTex);
+          if (texRotation & 1) {
+            const tmp = xTex;
+            xTex = yTex;
+            yTex = tmp;
+          }
+          
+          if (texRotation & 2)
+            xTex = 1.0 - xTex;
+          if (texRotation & 4)
+            yTex = 1.0 - yTex;
+          
+          const xt = Math.floor(xTex * texFloor.width);
+          const yt = Math.floor(yTex * texFloor.height);
+          
+          const [ R, G, B, A ] = texFloor.getRGBA(xt, yt);
           
           this.putRGBShade(x, y, zDepth, R, G, B);
         }
@@ -330,9 +353,9 @@ export class Renderer {
     const lerp2 = 5.0 / (zDepth * zDepth);
     const lerp = 1.0 - Math.min(lerp2, 1.0);
     
-    const dR = FOG_COLOR[0] - R;
-    const dG = FOG_COLOR[1] - G;
-    const dB = FOG_COLOR[2] - B;
+    const dR = this.fogColor[0] - R;
+    const dG = this.fogColor[1] - G;
+    const dB = this.fogColor[2] - B;
     
     const shadeR = Math.floor(R + dR * lerp);
     const shadeG = Math.floor(G + dG * lerp);
