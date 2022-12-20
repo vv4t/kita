@@ -14,31 +14,36 @@ class RayHit {
 };
 
 export class Map {
-  constructor(spriteMap, width, height)
+  static FLIPPED_HORIZONTALLY_FLAG  = 0x80000000;
+  static FLIPPED_VERTICALLY_FLAG    = 0x40000000;
+  static FLIPPED_DIAGONALLY_FLAG    = 0x20000000;
+  
+  constructor(spriteMap, width, height, walls)
   {
     this.width = width;
     this.height = height;
+    this.walls = walls;
     this.tiles = new Uint32Array(this.width * this.height);
     this.spriteMap = spriteMap;
     this.voidTile = 1;
   }
   
+  getWalls()
+  {
+    return this.walls;
+  }
+  
+  getSpriteMap()
+  {
+    return this.spriteMap;
+  }
+  
   getTile(x, y)
   {
     if (x < 0 || y < 0 || x >= this.width || y >= this.height)
-      return this.spriteMap.getSprite(this.voidTile);
+      return this.voidTile;
     
-    return this.spriteMap.getSprite(this.tiles[x + y * this.width] & 0xff);
-  }
-  
-  getRotation(x, y)
-  {
-    const FLIP_MASK = 0xE0000000;
-    
-    if (x < 0 || y < 0 || x >= this.width || y >= this.height)
-      return 0;
-    
-    return (this.tiles[x + y * this.width] & FLIP_MASK) >>> 29;
+    return this.tiles[x + y * this.width];
   }
   
   collide(xPos, yPos, xBox, yBox)
@@ -48,10 +53,10 @@ export class Map {
     const y0 = Math.floor(yPos - yBox);
     const y1 = Math.floor(yPos + yBox);
     
-    return this.getTile(x0, y0).solid ||
-    this.getTile(x1, y0).solid ||
-    this.getTile(x0, y1).solid ||
-    this.getTile(x1, y1).solid;
+    return this.spriteMap.getSprite(this.getTile(x0, y0)).solid ||
+    this.spriteMap.getSprite(this.getTile(x1, y0)).solid ||
+    this.spriteMap.getSprite(this.getTile(x0, y1)).solid ||
+    this.spriteMap.getSprite(this.getTile(x1, y1)).solid;
   }
 
   rayCast(rayPos, rayDir)
@@ -82,7 +87,7 @@ export class Map {
     }
     
     let side = false;
-    while (!this.getTile(xMap, yMap).solid) {
+    while (!this.spriteMap.getSprite(this.getTile(xMap, yMap)).solid) {
       if (xSideDist < ySideDist) {
         xSideDist += xDeltaDist;
         xMap += xStep;
@@ -106,7 +111,7 @@ export function mapLoad(mapPath, onLoad)
   fileLoad("assets/map/" + mapPath + ".map", (mapFileText) => {
     const mapFile = JSON.parse(mapFileText);
     spriteMapLoad(mapFile.sprFile, (spriteMap) => {
-      const map = new Map(spriteMap, mapFile.width, mapFile.height);
+      const map = new Map(spriteMap, mapFile.width, mapFile.height, mapFile.walls);
       
       for (let i = 0; i < mapFile.width * mapFile.height; i++)
         map.tiles[i] = mapFile.data[i];

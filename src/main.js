@@ -14,6 +14,10 @@ import { InputController } from "./inputController.js";
   
   const game = new Game();
   
+  game.addEventListener("mapLoad", (map) => {
+    renderer.mapLoad(map);
+  });
+  
   game.mapLoad("nexus");
   
   let prevTime = performance.now();

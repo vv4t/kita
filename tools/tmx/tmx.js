@@ -3,17 +3,22 @@ import path from "path";
 import { XMLParser } from "fast-xml-parser";
 
 class MapFile {
-  sprFile;
-  width;
-  height;
-  data;
-  
-  constructor(sprFile, width, height, data)
+  constructor(sprFile, width, height, data, walls)
   {
     this.sprFile = sprFile;
     this.width = width;
     this.height = height;
     this.data = data;
+    this.walls = walls;
+  }
+};
+
+class Wall {
+  constructor(tile, xPos, yPos)
+  {
+    this.tile = tile;
+    this.xPos = xPos;
+    this.yPos = yPos;
   }
 };
 
@@ -29,13 +34,33 @@ function tmxToMap(tmxPath)
   const parser = new XMLParser(options);
   let tmxMap = parser.parse(xmlData);
   
-  const layerData = tmxMap.map.layer.data["#text"].replace(/\s/g, '').split(',').map((x) => (parseInt(x) - 1));
-  const layerWidth = parseInt(tmxMap.map.layer.width);
-  const layerHeight = parseInt(tmxMap.map.layer.height);
+  const baseLayer = tmxMap.map.layer[0];
+  const baseData = baseLayer.data["#text"].replace(/\s/g, '').split(',').map((x) => (parseInt(x) - 1));
+  const baseWidth = parseInt(baseLayer.width);
+  const baseHeight = parseInt(baseLayer.height);
+  
+  const wallLayer = tmxMap.map.layer[1];
+  const wallData = wallLayer.data["#text"].replace(/\s/g, '').split(',').map((x) => (parseInt(x) - 1));
+  
+  const walls = [];
+  
+  for (let y = 0; y < baseHeight; y++) {
+    for (let x = 0; x < baseWidth; x++) {
+      const tile = wallData[x + y * baseHeight];
+      
+      if (tile > 0) {
+        const id = tile;
+        const xPos = x;
+        const yPos = y;
+        
+        walls.push(new Wall(id, xPos, yPos));
+      }
+    }
+  }
   
   const sprFile = path.parse(tmxMap.map.tileset.source).name;
   
-  return new MapFile(sprFile, layerWidth, layerHeight, layerData);
+  return new MapFile(sprFile, baseWidth, baseHeight, baseData, walls);
 }
 
 function main()

@@ -1,5 +1,15 @@
 import { textureLoad } from "./texture.js";
 import { clamp, Vector3 } from "../util/math.js";
+import { Map } from "../game/map.js";
+
+export class RenderWall {
+  constructor(start, end, tex)
+  {
+    this.start = start;
+    this.end = end;
+    this.tex = tex;
+  }
+};
 
 export class Renderer {
   constructor(bitmap)
@@ -11,9 +21,7 @@ export class Renderer {
     this.zBuffer = new Float32Array(this.bitmap.width);
     this.zNear = 0.1;
     this.fogColor = [ 0, 0, 0 ];
-    this.wallTex = null;
-    
-    textureLoad("assets/png/cirno.png", (tex) => this.wallTex = tex );
+    this.walls = [];
   }
   
   renderGame(game)
@@ -21,11 +29,38 @@ export class Renderer {
     if (game.map)
       this.renderMap(game.map, game.player.pos, game.player.rot);
     
-    this.renderWall(
-      this.wallTex,
-      new Vector3(4.0, 3.0, 0.0),
-      new Vector3(3.0, 3.0, 0.0),
-      game.player.pos, game.player.rot);
+    this.renderWalls(game.player.pos, game.player.rot);
+  }
+  
+  mapLoad(map)
+  {
+    for (const wall of map.walls) {
+      let start = new Vector3(-0.5, 0.0, 0.0);
+      let end = new Vector3(+0.5, 0.0, 0.0);
+      
+      if (wall.tile & Map.FLIPPED_HORIZONTALLY_FLAG) {
+        const tmp = start;
+        start = end;
+        end = tmp;
+      }
+      
+      if (wall.tile & Map.FLIPPED_DIAGONALLY_FLAG) {
+        start.rotateZ(Math.PI / 2.0);
+        end.rotateZ(Math.PI / 2.0);
+      }
+      
+      start.add(new Vector3(wall.xPos + 0.5, wall.yPos + 0.5, 0.0));
+      end.add(new Vector3(wall.xPos + 0.5, wall.yPos + 0.5, 0.0));
+      
+      const tex = map.getSpriteMap().getSprite(wall.tile).tex;
+      this.walls.push(new RenderWall(start, end, tex));
+    }
+  }
+  
+  renderWalls(camPos, camDir)
+  {
+    for (const wall of this.walls)
+      this.renderWall(wall.tex, wall.start, wall.end, camPos, camDir);
   }
   
   renderSprite(spriteTex, spritePos, camPos, camDir)
@@ -98,8 +133,8 @@ export class Renderer {
   
   renderWall(wallTex, wallStart, wallEnd, camPos, camDir)
   {
-    let startPos = wallStart.sub(camPos);
-    let endPos = wallEnd.sub(camPos);
+    let startPos = wallStart.copy().sub(camPos);
+    let endPos = wallEnd.copy().sub(camPos);
     startPos.rotateZ(-camDir);
     endPos.rotateZ(-camDir);
     
@@ -179,34 +214,34 @@ export class Renderer {
     if (xPixel1 >= this.bitmap.width)
       xPixel1 = this.bitmap.width;
     
-    const xp0 = Math.ceil(xPixel0);
-    const xp1 = Math.floor(xPixel1);
+    const xp0 = Math.floor(xPixel0);
+    const xp1 = Math.ceil(xPixel1);
     
     for (let x = xp0; x < xp1; x++) {
       const zPos = 1.0 / izInterp;
-      if (this.zBuffer[x] < zPos)
-        continue;
-      this.zBuffer[x] = zPos;
-      
-      const zInterp = (zPos - zPos0) / (zPos1 - zPos0);
-      
-      const xTex = xTex0 + xTexDir * zInterp;
-      const xt = Math.floor(xTex * wallTex.height);
-      
-      const yp0 = Math.ceil(yPixel0);
-      const yp1 = Math.floor(yPixel1);
-      
-      const yTexelStep = 1.0 / (yPixel1 - yPixel0);
-      
-      let yTex = 0;
-      for (let y = yp0; y < yp1; y++) {
-        const yt = Math.floor(yTex * wallTex.height);
+      if (this.zBuffer[x] > zPos) {
+        this.zBuffer[x] = zPos;
         
-        const [ R, G, B, A ] = wallTex.getRGBA(xt, yt);
+        const zInterp = (zPos - zPos0) / (zPos1 - zPos0);
         
-        this.putRGBAShade(x, y, zPos, R, G, B, A);
+        const xTex = xTex0 + xTexDir * zInterp;
+        const xt = Math.floor(xTex * wallTex.height);
         
-        yTex += yTexelStep;
+        const yp0 = Math.floor(yPixel0);
+        const yp1 = Math.ceil(yPixel1);
+        
+        const yTexelStep = 1.0 / (yPixel1 - yPixel0);
+        
+        let yTex = 0;
+        for (let y = yp0; y < yp1; y++) {
+          const yt = Math.floor(yTex * wallTex.height);
+          
+          const [ R, G, B, A ] = wallTex.getRGBA(xt, yt);
+          
+          this.putRGBAShade(x, y, zPos, R, G, B, A);
+          
+          yTex += yTexelStep;
+        }
       }
       
       yPixel0 += yDelta0;
@@ -227,7 +262,8 @@ export class Renderer {
       const yRayDir = xCam * sinDir + cosDir;
       
       const rayHit = map.rayCast(pos, new Vector3(xRayDir, yRayDir, 0.0));
-      const texWall = map.getTile(rayHit.xMap, rayHit.yMap).tex;
+      const tile = map.getTile(rayHit.xMap, rayHit.yMap);
+      const texWall = map.getSpriteMap().getSprite(tile).tex;
 
       let wallDist, xWall;
       if (rayHit.side) {
@@ -297,21 +333,21 @@ export class Renderer {
           const xTile = Math.floor(xPixel);
           const yTile = Math.floor(yPixel);
           
-          const texFloor = map.getTile(xTile, yTile).tex;
-          const texRotation = map.getRotation(xTile, yTile);
+          const tile = map.getTile(xTile, yTile);
+          const texFloor = map.getSpriteMap().getSprite(tile).tex;
           
           let xTex = (xPixel - Math.floor(xPixel));
           let yTex = (yPixel - Math.floor(yPixel));
           
-          if (texRotation & 1) {
+          if (tile & Map.FLIPPED_DIAGONALLY_FLAG) {
             const tmp = xTex;
             xTex = yTex;
             yTex = tmp;
           }
           
-          if (texRotation & 2)
+          if (tile & Map.FLIPPED_HORIZONTALLY_FLAG)
             xTex = 1.0 - xTex;
-          if (texRotation & 4)
+          if (tile & Map.FLIPPED_VERTICALLY_FLAG)
             yTex = 1.0 - yTex;
           
           const xt = Math.floor(xTex * texFloor.width);

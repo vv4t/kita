@@ -17,7 +17,7 @@ class SpriteMap {
   
   getSprite(id)
   {
-    return this.spriteArr[id];
+    return this.spriteArr[id & 255];
   }
 };
 
