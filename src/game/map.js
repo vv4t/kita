@@ -1,9 +1,3 @@
-/*
---- map.js ---
-
-Map class and loading the map
-*/
-
 import { rand } from "../util//math.js";
 import { fileLoad } from "../util/file.js";
 import { spriteMapLoad } from "../gfx/spriteMap.js";
@@ -30,13 +24,8 @@ export class Map {
     this.height = height;
     this.walls = walls;
     this.spriteMap = spriteMap;
-    
-    // The tile data is stored as
     this.tiles = new Uint32Array(this.width * this.height);
-    
-    // The tile that is returned when accessing a tile out of bounds
-    this.voidTile = 1; // TODO: remove this and return 0 by default in getTile
-    // I have the default floor tile as 0 which isnt solid i'll fix this later
+    this.voidTile = 1;
   }
   
   getWalls()
@@ -57,9 +46,6 @@ export class Map {
     return this.tiles[x + y * this.width];
   }
   
-  // Use AABB to check if a position is colliding with a solid tile
-  // NOTE: this will not work for xBox or yBox > 1.0
-  // That would require some sort of for loop iterating over all the boxes it's in
   collide(xPos, yPos, xBox, yBox)
   {
     const x0 = Math.floor(xPos - xBox);
@@ -129,9 +115,6 @@ export function mapLoad(mapPath, onLoad)
     spriteMapLoad(mapFile.sprFile, (spriteMap) => {
       const map = new Map(spriteMap, mapFile.width, mapFile.height, mapFile.walls);
       
-      // NOTE: mapFile.data is a JSON array object while map.tiles is a typed array
-      // this is why the for loop is necessary
-      // (i think)
       for (let i = 0; i < mapFile.width * mapFile.height; i++)
         map.tiles[i] = mapFile.data[i];
       

@@ -2,6 +2,7 @@ const ALPHA_BEGIN = "a".charCodeAt(0);
 const ALPHA_END = "z".charCodeAt(0);
 const NUM_BEGIN = "0".charCodeAt(0);
 const NUM_END = "9".charCodeAt(0);
+
 const CHAR_PAD = 1;
 
 export class GUI {
