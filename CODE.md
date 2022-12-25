@@ -38,9 +38,30 @@ I'm probably gonna replace this with a command system like in source engine.
 I haven't implemented it yet but I'm deciding between distinct classes vs an
 entity system. Probably should go with the entity system?
 
+From the outside, the game has an "update" function which advances the game
+state given how much time has passed, "delta", and the userCommand for the
+frame.
+
+Haven't worked on this too much yet so not much to say.
+
 ### Rendering
 
-TODO
+No rendering should take place in the Game class (except for maybe debugging?).
+Instead, ther renderer takes in a game object as input then renders its
+properties.
+
+Definitions:
+
+RenderWall: walls go down the middle of the tile, not blocks (for windows or
+doors)
+
+At the moment, the renderer has the following functions:
+
+mapLoad(): load the map for the renderer to draw
+renderWalls(): render all the RenderWalls
+renderSprite(): draw a sprite at a certain position (sprites always face the camera)
+renderWall(): draw a wall (this is not used in renderMap)
+renderMap(): draw the map
 
 ## Tiled and custom file formats
 
@@ -66,3 +87,17 @@ used with eg.
 
 (in tools/tmx)
 "node . saves/\<MY MAP\>.tmx ../../assets/map/\<MY MAP\>.map"
+
+### Tiled tile encoding and format
+
+In each sprite map, its sprite ID is its chronological position starting from
+the top left, left to right, top to bottom.
+
+Map data is essentially an array of these sprite IDs as a Uint32Array. Further
+data is encoded in the last 3 bits. These bits are flags for how the tiled
+should be transformed. Bits for horizontal, vertical and diagonal flipping allow
+for the tile to be orientated in any way.
+
+To retrieve the original sprite ID a bit mask can be used:
+
+> spriteID = tile & 255

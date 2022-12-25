@@ -7,10 +7,10 @@
 - [x] Raycasting renderer
 - [x] Sprite renderer
 - [x] Tiled map and tilset parser
-- [ ] Better input system
-- [ ] Mouse screen rotation
-- [ ] Player movement
-- [ ] Player collision
+- [x] Better input system
+- [x] Mouse screen rotation
+- [x] Player movement
+- [x] Player collision
 - [ ] Entity system
 - [ ] Tiled entity loading
 - [ ] Projectile shooting
@@ -19,7 +19,7 @@
 - [ ] Health system
 - [ ] Particle system
 - [ ] Level transitions
-- [ ] Text rendering
+- [x] Text rendering
 
 ## Other cool stuff maybe
 
