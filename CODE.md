@@ -57,11 +57,13 @@ doors)
 
 At the moment, the renderer has the following functions:
 
-mapLoad(): load the map for the renderer to draw
-renderWalls(): render all the RenderWalls
-renderSprite(): draw a sprite at a certain position (sprites always face the camera)
-renderWall(): draw a wall (this is not used in renderMap)
-renderMap(): draw the map
+- mapLoad(): load the map for the renderer to draw
+- renderWalls(): render all the RenderWalls
+- renderSprite(): draw a sprite at a certain position (sprites always face the camera)
+- renderWall(): draw a wall (this is not used in renderMap)
+- renderMap(): draw the map
+
+I should probably label these better lol
 
 ## Tiled and custom file formats
 
