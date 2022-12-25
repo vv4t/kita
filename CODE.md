@@ -103,3 +103,19 @@ for the tile to be orientated in any way.
 To retrieve the original sprite ID a bit mask can be used:
 
 > spriteID = tile & 255
+
+## Utility stuff
+
+### Math
+
+As a note, arithmetic operations on vectors (add, mulf, rotate, normalize)
+modify the original object to reduce creating a new object each operation. When
+necessary, use the .copy() function to avoid modifying the original.
+
+In this example, to perform calculations without modifying the player's
+position, a copy is created. After that vector operations modify the copy.
+
+> const newVector = player.pos.copy();
+> newVector.rotateZ(Math.PI);
+> newVector.add(new Vector3(0, 0, 1));
+> newVector.normalize();
