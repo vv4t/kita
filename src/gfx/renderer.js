@@ -22,6 +22,11 @@ export class Renderer {
     this.zNear = 0.1;
     this.fogColor = [ 0, 0, 0 ];
     this.walls = [];
+    this.entityTex = null;
+    
+    textureLoad("assets/spr/entity.png", (tex) => {
+      this.entityTex = tex;
+    });
   }
   
   renderGame(game)
@@ -30,6 +35,9 @@ export class Renderer {
       this.renderMap(game.map, game.player.pos, game.player.rot);
     
     this.renderWalls(game.player.pos, game.player.rot);
+    
+    if (this.entityTex)
+      this.renderSprite(this.entityTex, new Vector3(2, 2, 0), game.player.pos, game.player.rot);
   }
   
   mapLoad(map)
