@@ -41,6 +41,7 @@ export class Renderer {
       //this.renderSprite(this.entitySpriteMap.getSprite(0).tex, new Vector3(3, 3, 0), game.player.pos, game.player.rot)
       for (const entity of game.entities) {
         if (entity.spriteID != -1) 
+          console.log(game.player.rot)
           this.renderSprite(
             this.entitySpriteMap.getSprite(entity.spriteID).tex,
             entity.pos,
