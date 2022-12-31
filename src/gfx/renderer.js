@@ -1,5 +1,6 @@
 import { textureLoad } from "./texture.js";
 import { clamp, Vector3 } from "../util/math.js";
+import { spriteMapLoad } from "../gfx/spriteMap.js";
 import { Map } from "../game/map.js";
 
 export class RenderWall {
@@ -22,11 +23,11 @@ export class Renderer {
     this.zNear = 0.1;
     this.fogColor = [ 0, 0, 0 ];
     this.walls = [];
-    this.entityTex = null;
-    
-    textureLoad("assets/spr/entity.png", (tex) => {
-      this.entityTex = tex;
-    });
+
+    this.entitySpriteMap = null;
+    spriteMapLoad("entitysprites", (spriteMap) => {
+        this.entitySpriteMap = spriteMap
+    })
   }
   
   renderGame(game)
@@ -36,8 +37,17 @@ export class Renderer {
     
     this.renderWalls(game.player.pos, game.player.rot);
     
-    if (this.entityTex)
-      this.renderSprite(this.entityTex, new Vector3(2, 2, 0), game.player.pos, game.player.rot);
+    if (this.entitySpriteMap)
+      //this.renderSprite(this.entitySpriteMap.getSprite(0).tex, new Vector3(3, 3, 0), game.player.pos, game.player.rot)
+      for (const entity of game.entities) {
+        if (entity.spriteID != -1) 
+          this.renderSprite(
+            this.entitySpriteMap.getSprite(entity.spriteID).tex,
+            entity.pos,
+            game.player.pos,
+            game.player.rot
+          )
+      }
   }
   
   mapLoad(map)
