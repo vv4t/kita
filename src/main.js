@@ -21,7 +21,7 @@ import { InputController } from "./inputController.js";
   game.mapLoad("nexus");
   
   let prevTime = performance.now();
-  
+
   function animate() {
     const nowTime = performance.now();
     const deltaTime = (nowTime - prevTime) * 0.001;
