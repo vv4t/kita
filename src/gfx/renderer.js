@@ -30,7 +30,7 @@ export class Renderer {
     this.halfHeight = this.bitmap.height / 2.0;
     
     this.zNear = 0.1;
-    this.zBuffer = new Float32Array(this.bitmap.width);
+    this.zBuffer = new Float32Array(this.bitmap.width * this.bitmap.height);
     
     this.fogColor = [ 0, 0, 0 ];
     
@@ -172,11 +172,6 @@ export class Renderer {
     for (let x = xp0; x < xp1; x++) {
       xTex += texStep;
       
-      if (this.zBuffer[x] < yRot)
-        continue;
-      
-      this.zBuffer[x] = yRot;
-      
       let yTex = yTexStart;
       for (let y = yp0; y < yp1; y++) {
         yTex += texStep;
@@ -185,6 +180,13 @@ export class Renderer {
         const yt = Math.floor(yTex * spriteTex.height);
         
         const [ R, G, B, A ] = spriteTex.getRGBA(xt, yt);
+        
+        if (A > 0) {
+          if (this.zBuffer[x + y * this.bitmap.width] < yRot)
+            continue;
+          
+          this.zBuffer[x + y* this.bitmap.width] = yRot;
+        }
         
         this.putRGBAShade(x, y, yRot, R, G, B, A);
       }
@@ -279,29 +281,31 @@ export class Renderer {
     
     for (let x = xp0; x < xp1; x++) {
       const zPos = 1.0 / izInterp;
-      if (this.zBuffer[x] > zPos) {
-        this.zBuffer[x] = zPos;
+      const zInterp = (zPos - zPos0) / (zPos1 - zPos0);
+      
+      const xTex = xTex0 + xTexDir * zInterp;
+      const xt = Math.floor(xTex * wallTex.height);
+      
+      const yp0 = Math.floor(yPixel0);
+      const yp1 = Math.floor(yPixel1);
+      
+      const yTexelStep = 1.0 / (yPixel1 - yPixel0);
+      
+      let yTex = 0;
+      for (let y = yp0; y < yp1; y++) {
+        const yt = Math.floor(yTex * wallTex.height);
         
-        const zInterp = (zPos - zPos0) / (zPos1 - zPos0);
+        const [ R, G, B, A ] = wallTex.getRGBA(xt, yt);
         
-        const xTex = xTex0 + xTexDir * zInterp;
-        const xt = Math.floor(xTex * wallTex.height);
-        
-        const yp0 = Math.floor(yPixel0);
-        const yp1 = Math.floor(yPixel1);
-        
-        const yTexelStep = 1.0 / (yPixel1 - yPixel0);
-        
-        let yTex = 0;
-        for (let y = yp0; y < yp1; y++) {
-          const yt = Math.floor(yTex * wallTex.height);
-          
-          const [ R, G, B, A ] = wallTex.getRGBA(xt, yt);
-          
-          this.putRGBAShade(x, y, zPos, R, G, B, A);
-          
-          yTex += yTexelStep;
+        if (A > 0) {
+          if (this.zBuffer[x + y * this.bitmap.width] < zPos)
+            continue;
+          this.zBuffer[x + y * this.bitmap.width] = zPos;
         }
+        
+        this.putRGBAShade(x, y, zPos, R, G, B, A);
+        
+        yTex += yTexelStep;
       }
       
       yPixel0 += yDelta0;
@@ -334,8 +338,6 @@ export class Renderer {
         xWall = Math.abs(this.camera.pos.x + wallDist * xRayDir - rayHit.xMap);
       }
       
-      this.zBuffer[x] = wallDist;
-      
       const wallStart = (-0.5 + this.camera.pos.z) / (this.camera.fov * wallDist) * this.bitmap.width;
       const wallEnd = (+0.5 + this.camera.pos.z) / (this.camera.fov * wallDist) * this.bitmap.width;
       const wallHeight = wallEnd - wallStart;
@@ -363,6 +365,7 @@ export class Renderer {
           const yCam = this.camera.fov * (y - this.halfHeight) / this.bitmap.width;
           const zDepth = Math.abs(0.5 / yCam);
           
+          this.zBuffer[x + y * this.bitmap.width] = 1000;
           this.putRGBAShade(x, y, zDepth, R, G, B, 255);
         } else if (y > yPixel0 && y < yPixel1) {
           yWall += yWallStep;
@@ -372,6 +375,7 @@ export class Renderer {
           
           const [ R, G, B, A ] = texWall.getRGBA(xTex, yTex);
           
+          this.zBuffer[x + y * this.bitmap.width] = wallDist;
           this.putRGBShade(x, y, wallDist, R, G, B);
         } else {
           const yCam = this.camera.fov * (y - this.halfHeight) / this.bitmap.width;
@@ -415,6 +419,7 @@ export class Renderer {
           
           const [ R, G, B, A ] = texFloor.getRGBA(xt, yt);
           
+          this.zBuffer[x + y * this.bitmap.width] = zDepth;
           this.putRGBShade(x, y, zDepth, R, G, B);
         }
       }
