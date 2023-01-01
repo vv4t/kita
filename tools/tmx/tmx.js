@@ -3,9 +3,10 @@ import path from "path";
 import { XMLParser } from "fast-xml-parser";
 
 class MapFile {
-  constructor(sprFile, width, height, data, walls)
+  constructor(spr, sky, width, height, data, walls)
   {
-    this.sprFile = sprFile;
+    this.spr = spr;
+    this.sky = sky;
     this.width = width;
     this.height = height;
     this.data = data;
@@ -22,6 +23,16 @@ class Wall {
   }
 };
 
+function getProperty(name, properties)
+{
+  const res = properties.find(x => x.property.name == name);
+  
+  if (res)
+    return res.property.value;
+  
+  return null;
+}
+
 function tmxToMap(tmxPath)
 {
   const xmlData = fs.readFileSync(tmxPath);
@@ -33,6 +44,9 @@ function tmxToMap(tmxPath)
   
   const parser = new XMLParser(options);
   let tmxMap = parser.parse(xmlData);
+  
+  const properties = tmxMap.map.properties ? [].concat(tmxMap.map.properties) : [];
+  const sky = getProperty("sky", properties)
   
   const baseLayer = tmxMap.map.layer[0];
   const baseData = baseLayer.data["#text"].replace(/\s/g, '').split(',').map((x) => (parseInt(x) - 1));
@@ -58,9 +72,9 @@ function tmxToMap(tmxPath)
     }
   }
   
-  const sprFile = path.parse(tmxMap.map.tileset.source).name;
+  const spr = path.parse(tmxMap.map.tileset.source).name;
   
-  return new MapFile(sprFile, baseWidth, baseHeight, baseData, walls);
+  return new MapFile(spr, sky, baseWidth, baseHeight, baseData, walls);
 }
 
 function main()

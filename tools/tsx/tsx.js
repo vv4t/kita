@@ -23,6 +23,16 @@ class SprFile {
   }
 };
 
+function getProperty(name, properties)
+{
+  const res = properties.find(x => x.property.name == name);
+  
+  if (res)
+    return res.property.value;
+  
+  return null;
+}
+
 function tsxToSpr(tsxPath)
 {
   const xmlData = fs.readFileSync(tsxPath);
@@ -41,9 +51,8 @@ function tsxToSpr(tsxPath)
     
     for (const tile of tiles) {
       const properties = [].concat(tile.properties);
-      
       const id = parseInt(tile.id);
-      const solid = properties.find(x => x.property.name == 'solid').property.value == "true";
+      const solid = getProperty("solid", properties) == "true";
       
       sprConfig[id] = new SprConfig(solid);
     }

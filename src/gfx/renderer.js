@@ -40,10 +40,6 @@ export class Renderer {
     this.mapSky = null;
     this.mapWalls = [];
     
-    textureLoad("assets/sky/bocchi.png", (mapSky) => {
-      this.mapSky = mapSky;
-    });
-    
     this.entitySpriteMap = null;
     spriteMapLoad("entitySprites", (spriteMap) => {
         this.entitySpriteMap = spriteMap
@@ -115,6 +111,12 @@ export class Renderer {
       
       const tex = map.getSpriteMap().getSprite(wall.tile).tex;
       this.mapWalls.push(new MapWall(start, end, tex));
+    }
+    
+    if (map.sky) {
+      textureLoad("assets/sky/" + map.sky + ".png", (mapSky) => {
+        this.mapSky = mapSky;
+      });
     }
   }
   
