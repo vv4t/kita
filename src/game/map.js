@@ -18,7 +18,7 @@ export class Map {
   static FLIPPED_VERTICALLY_FLAG    = 0x40000000;
   static FLIPPED_DIAGONALLY_FLAG    = 0x20000000;
   
-  constructor(spriteMap, sky, width, height, walls)
+  constructor(spriteMap, sky, width, height, walls, props)
   {
     this.spriteMap = spriteMap;
     this.sky = sky;
@@ -26,12 +26,18 @@ export class Map {
     this.height = height;
     this.walls = walls;
     this.tiles = new Uint32Array(this.width * this.height);
+    this.props = props;
     this.voidTile = 0;
   }
   
   getWalls()
   {
     return this.walls;
+  }
+  
+  getProps()
+  {
+    return this.props;
   }
   
   getSpriteMap()
@@ -114,7 +120,7 @@ export function mapLoad(mapPath, onLoad)
   fileLoad("assets/map/" + mapPath + ".map", (mapFileText) => {
     const mapFile = JSON.parse(mapFileText);
     spriteMapLoad(mapFile.spr, (spriteMap) => {
-      const map = new Map(spriteMap, mapFile.sky, mapFile.width, mapFile.height, mapFile.walls);
+      const map = new Map(spriteMap, mapFile.sky, mapFile.width, mapFile.height, mapFile.walls, mapFile.props);
       
       for (let i = 0; i < mapFile.width * mapFile.height; i++)
         map.tiles[i] = mapFile.data[i];

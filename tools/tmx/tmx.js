@@ -3,7 +3,7 @@ import path from "path";
 import { XMLParser } from "fast-xml-parser";
 
 class MapFile {
-  constructor(spr, sky, width, height, data, walls)
+  constructor(spr, sky, width, height, data, walls, props)
   {
     this.spr = spr;
     this.sky = sky;
@@ -11,6 +11,7 @@ class MapFile {
     this.height = height;
     this.data = data;
     this.walls = walls;
+    this.props = props;
   }
 };
 
@@ -18,6 +19,15 @@ class Wall {
   constructor(tile, xPos, yPos)
   {
     this.tile = tile;
+    this.xPos = xPos;
+    this.yPos = yPos;
+  }
+};
+
+class Prop {
+  constructor(spriteID, xPos, yPos)
+  {
+    this.spriteID = spriteID;
     this.xPos = xPos;
     this.yPos = yPos;
   }
@@ -58,6 +68,24 @@ function tmxToMap(tmxPath)
   
   const walls = [];
   
+  const groups = [].concat(tmxMap.map.objectgroup);
+  
+  const propGroup = groups.find(x => x.name == "props");
+  
+  const props = [];
+  
+  if (propGroup) {
+    const mapProps = [].concat(propGroup.object);
+    
+    for (const prop of mapProps) {
+      const id = parseInt(prop.gid) - 1;
+      const xPos = parseFloat(prop.x) / 10.0;
+      const yPos = parseFloat(prop.y) / 10.0;
+      
+      props.push(new Prop(id, xPos, yPos));
+    }
+  }
+  
   for (let y = 0; y < baseHeight; y++) {
     for (let x = 0; x < baseWidth; x++) {
       const tile = wallData[x + y * baseHeight];
@@ -74,7 +102,7 @@ function tmxToMap(tmxPath)
   
   const spr = path.parse(tmxMap.map.tileset.source).name;
   
-  return new MapFile(spr, sky, baseWidth, baseHeight, baseData, walls);
+  return new MapFile(spr, sky, baseWidth, baseHeight, baseData, walls, props);
 }
 
 function main()

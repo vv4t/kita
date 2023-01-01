@@ -68,6 +68,12 @@ export class Renderer {
     
     for (const mapWall of this.mapWalls)
       this.renderWall(mapWall.tex, mapWall.start, mapWall.end);
+    
+    for (const prop of this.map.getProps()) {
+      this.renderSprite(
+        this.map.getSpriteMap().getSprite(prop.spriteID).tex,
+        new Vector3(prop.xPos, prop.yPos, 0.0));
+    }
   }
   
   renderEntities(entities)
@@ -79,10 +85,7 @@ export class Renderer {
       if (entity.spriteID == -1)
         continue;
       
-      this.renderSprite(
-        this.entitySpriteMap.getSprite(entity.spriteID).tex,
-        entity.pos
-      );
+      this.renderSprite(this.entitySpriteMap.getSprite(entity.spriteID).tex, entity.pos);
     }
   }
   
