@@ -25,7 +25,7 @@ export class Renderer {
     this.walls = [];
 
     this.entitySpriteMap = null;
-    spriteMapLoad("entitysprites", (spriteMap) => {
+    spriteMapLoad("entitySprites", (spriteMap) => {
         this.entitySpriteMap = spriteMap
     })
   }
@@ -40,14 +40,14 @@ export class Renderer {
     if (this.entitySpriteMap)
       //this.renderSprite(this.entitySpriteMap.getSprite(0).tex, new Vector3(3, 3, 0), game.player.pos, game.player.rot)
       for (const entity of game.entities) {
-        if (entity.spriteID != -1) 
-          console.log(game.player.rot)
+        if (entity.spriteID != -1) {
           this.renderSprite(
             this.entitySpriteMap.getSprite(entity.spriteID).tex,
             entity.pos,
             game.player.pos,
             game.player.rot
-          )
+          );
+        }
       }
   }
   
