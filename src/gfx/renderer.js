@@ -3,7 +3,7 @@ import { clamp, Vector3 } from "../util/math.js";
 import { spriteMapLoad } from "../gfx/spriteMap.js";
 import { Map } from "../game/map.js";
 
-export class RenderWall {
+class MapWall {
   constructor(start, end, tex)
   {
     this.start = start;
@@ -12,18 +12,38 @@ export class RenderWall {
   }
 };
 
+class Camera {
+  constructor(pos, rot, fov)
+  {
+    this.pos = pos;
+    this.rot = rot;
+    this.fov = fov;
+  }
+};
+
 export class Renderer {
   constructor(bitmap)
   {
-    this.fov = 2.0;
     this.bitmap = bitmap;
+    
     this.halfWidth = this.bitmap.width / 2.0;
     this.halfHeight = this.bitmap.height / 2.0;
-    this.zBuffer = new Float32Array(this.bitmap.width);
+    
     this.zNear = 0.1;
+    this.zBuffer = new Float32Array(this.bitmap.width);
+    
     this.fogColor = [ 0, 0, 0 ];
-    this.walls = [];
-
+    
+    this.camera = new Camera(new Vector3(0.0, 0.0, 0.0), 0.0, 2.0);
+    
+    this.map = null;
+    this.mapSky = null;
+    this.mapWalls = [];
+    
+    textureLoad("assets/sky/bocchi.png", (mapSky) => {
+      this.mapSky = mapSky;
+    });
+    
     this.entitySpriteMap = null;
     spriteMapLoad("entitySprites", (spriteMap) => {
         this.entitySpriteMap = spriteMap
@@ -32,27 +52,49 @@ export class Renderer {
   
   renderGame(game)
   {
-    if (game.map)
-      this.renderMap(game.map, game.player.pos, game.player.rot);
+    this.lockCamera(game.player);
+    this.renderMap();
+    this.renderEntities(game.entities);
+  }
+  
+  lockCamera(entity)
+  {
+    this.camera.pos = entity.pos;
+    this.camera.rot = entity.rot;
+  }
+  
+  renderMap()
+  {
+    if (!this.map)
+      return;
     
-    this.renderWalls(game.player.pos, game.player.rot);
+    this.renderMapData();
     
-    if (this.entitySpriteMap)
-      //this.renderSprite(this.entitySpriteMap.getSprite(0).tex, new Vector3(3, 3, 0), game.player.pos, game.player.rot)
-      for (const entity of game.entities) {
-        if (entity.spriteID != -1) {
-          this.renderSprite(
-            this.entitySpriteMap.getSprite(entity.spriteID).tex,
-            entity.pos,
-            game.player.pos,
-            game.player.rot
-          );
-        }
-      }
+    for (const mapWall of this.mapWalls)
+      this.renderWall(mapWall.tex, mapWall.start, mapWall.end);
+  }
+  
+  renderEntities(entities)
+  {
+    if (!this.entitySpriteMap)
+      return;
+    
+    for (const entity of entities) {
+      if (entity.spriteID == -1)
+        continue;
+      
+      this.renderSprite(
+        this.entitySpriteMap.getSprite(entity.spriteID).tex,
+        entity.pos
+      );
+    }
   }
   
   mapLoad(map)
   {
+    this.map = map;
+    this.mapWalls = [];
+    
     for (const wall of map.walls) {
       let start = new Vector3(-0.5, 0.0, 0.0);
       let end = new Vector3(+0.5, 0.0, 0.0);
@@ -72,24 +114,18 @@ export class Renderer {
       end.add(new Vector3(wall.xPos + 0.5, wall.yPos + 0.5, 0.0));
       
       const tex = map.getSpriteMap().getSprite(wall.tile).tex;
-      this.walls.push(new RenderWall(start, end, tex));
+      this.mapWalls.push(new MapWall(start, end, tex));
     }
   }
   
-  renderWalls(camPos, camDir)
+  renderSprite(spriteTex, spritePos)
   {
-    for (const wall of this.walls)
-      this.renderWall(wall.tex, wall.start, wall.end, camPos, camDir);
-  }
-  
-  renderSprite(spriteTex, spritePos, camPos, camDir)
-  {
-    const cosDir = Math.cos(-camDir);
-    const sinDir = Math.sin(-camDir);
+    const cosDir = Math.cos(-this.camera.rot);
+    const sinDir = Math.sin(-this.camera.rot);
     
-    const xCam = spritePos.x - camPos.x;
-    const yCam = spritePos.y - camPos.y;
-    const zCam = -spritePos.z + camPos.z;
+    const xCam = spritePos.x - this.camera.pos.x;
+    const yCam = spritePos.y - this.camera.pos.y;
+    const zCam = -spritePos.z + this.camera.pos.z;
     
     const xRot = xCam * cosDir - yCam * sinDir;
     const yRot = xCam * sinDir + yCam * cosDir;
@@ -97,7 +133,7 @@ export class Renderer {
     if (yRot < 0.01)
       return;
     
-    const distFactor = this.bitmap.width / (yRot * this.fov);
+    const distFactor = this.bitmap.width / (yRot * this.camera.fov);
     const texStep = 1.0 / distFactor;
     
     let xPixel0 = (xRot - 0.5) * distFactor + this.halfWidth;
@@ -150,12 +186,12 @@ export class Renderer {
     }
   }
   
-  renderWall(wallTex, wallStart, wallEnd, camPos, camDir)
+  renderWall(wallTex, wallStart, wallEnd)
   {
-    let startPos = wallStart.copy().sub(camPos);
-    let endPos = wallEnd.copy().sub(camPos);
-    startPos.rotateZ(-camDir);
-    endPos.rotateZ(-camDir);
+    let startPos = wallStart.copy().sub(this.camera.pos);
+    let endPos = wallEnd.copy().sub(this.camera.pos);
+    startPos.rotateZ(-this.camera.rot);
+    endPos.rotateZ(-this.camera.rot);
     
     if (startPos.y < this.zNear && endPos.y < this.zNear)
       return;
@@ -180,8 +216,8 @@ export class Renderer {
       izEnd = 1.0 / this.zNear;
     }
     
-    let distFactor0 = this.bitmap.width / (startPos.y * this.fov);
-    let distFactor1 = this.bitmap.width / (endPos.y * this.fov);
+    let distFactor0 = this.bitmap.width / (startPos.y * this.camera.fov);
+    let distFactor1 = this.bitmap.width / (endPos.y * this.camera.fov);
     
     let xPixel0 = startPos.x * distFactor0 + this.halfWidth;
     let xPixel1 = endPos.x * distFactor1 + this.halfWidth;
@@ -269,34 +305,34 @@ export class Renderer {
     }
   }
   
-  renderMap(map, pos, rot)
+  renderMapData()
   {
-    const cosDir = Math.cos(rot);
-    const sinDir = Math.sin(rot);
+    const cosDir = Math.cos(this.camera.rot);
+    const sinDir = Math.sin(this.camera.rot);
     
     for (let x = 0; x < this.bitmap.width; x++) {
-      const xCam = this.fov * (x - this.halfWidth) / this.bitmap.width;
+      const xCam = this.camera.fov * (x - this.halfWidth) / this.bitmap.width;
       
       const xRayDir = xCam * cosDir - sinDir;
       const yRayDir = xCam * sinDir + cosDir;
       
-      const rayHit = map.rayCast(pos, new Vector3(xRayDir, yRayDir, 0.0));
-      const tile = map.getTile(rayHit.xMap, rayHit.yMap);
-      const texWall = map.getSpriteMap().getSprite(tile).tex;
+      const rayHit = this.map.rayCast(this.camera.pos, new Vector3(xRayDir, yRayDir, 0.0));
+      const tile = this.map.getTile(rayHit.xMap, rayHit.yMap);
+      const texWall = this.map.getSpriteMap().getSprite(tile).tex;
 
       let wallDist, xWall;
       if (rayHit.side) {
         wallDist = rayHit.xDist;
-        xWall = Math.abs(pos.y + wallDist * yRayDir - rayHit.yMap);
+        xWall = Math.abs(this.camera.pos.y + wallDist * yRayDir - rayHit.yMap);
       } else {
         wallDist = rayHit.yDist;
-        xWall = Math.abs(pos.x + wallDist * xRayDir - rayHit.xMap);
+        xWall = Math.abs(this.camera.pos.x + wallDist * xRayDir - rayHit.xMap);
       }
       
       this.zBuffer[x] = wallDist;
       
-      const wallStart = (-0.5 + pos.z) / (this.fov * wallDist) * this.bitmap.width;
-      const wallEnd = (+0.5 + pos.z) / (this.fov * wallDist) * this.bitmap.width;
+      const wallStart = (-0.5 + this.camera.pos.z) / (this.camera.fov * wallDist) * this.bitmap.width;
+      const wallEnd = (+0.5 + this.camera.pos.z) / (this.camera.fov * wallDist) * this.bitmap.width;
       const wallHeight = wallEnd - wallStart;
       
       const yPixel0 = Math.floor(this.halfHeight + wallStart);
@@ -309,17 +345,17 @@ export class Renderer {
       const yWallStep = 1.0 / wallHeight;
       
       for (let y = 0; y < this.bitmap.height; y++) {
-        if (y < 0) {
-          let xTex = Math.floor(x - rot * this.bitmap.width);
+        if (y <= yPixel0 && this.mapSky) {
+          let xTex = Math.floor(x - this.camera.rot * this.bitmap.width / this.camera.fov);
           
           if (xTex < 0)
-            xTex = skyTex.width - xTex;
-          if (xTex >= skyTex.width)
-            xTex = xTex % skyTex.width;
+            xTex = this.mapSky.width - xTex;
+          if (xTex >= this.mapSky.width)
+            xTex = xTex % this.mapSky.width;
           
-          const [ R, G, B, A ] = skyTex.getRGBA(xTex, y);
+          const [ R, G, B, A ] = this.mapSky.getRGBA(xTex, y);
           
-          const yCam = this.fov * (y - this.halfHeight) / this.bitmap.width;
+          const yCam = this.camera.fov * (y - this.halfHeight) / this.bitmap.width;
           const zDepth = Math.abs(0.5 / yCam);
           
           this.putRGBAShade(x, y, zDepth, R, G, B, 255);
@@ -333,27 +369,27 @@ export class Renderer {
           
           this.putRGBShade(x, y, wallDist, R, G, B);
         } else {
-          const yCam = this.fov * (y - this.halfHeight) / this.bitmap.width;
+          const yCam = this.camera.fov * (y - this.halfHeight) / this.bitmap.width;
           
           let zDepth;
           if (yCam < 0)
-            zDepth = (-0.5 + pos.z) / yCam;
+            zDepth = (-0.5 + this.camera.pos.z) / yCam;
           else
-            zDepth = (+0.5 + pos.z) / Math.max(yCam, 0.001);
+            zDepth = (+0.5 + this.camera.pos.z) / Math.max(yCam, 0.001);
           
           if (zDepth < 0.0)
             continue;
           
           const xDepth = xCam * zDepth;
           
-          const xPixel = xDepth * cosDir - zDepth * sinDir + pos.x;
-          const yPixel = xDepth * sinDir + zDepth * cosDir + pos.y;
+          const xPixel = xDepth * cosDir - zDepth * sinDir + this.camera.pos.x;
+          const yPixel = xDepth * sinDir + zDepth * cosDir + this.camera.pos.y;
           
           const xTile = Math.floor(xPixel);
           const yTile = Math.floor(yPixel);
           
-          const tile = map.getTile(xTile, yTile);
-          const texFloor = map.getSpriteMap().getSprite(tile).tex;
+          const tile = this.map.getTile(xTile, yTile);
+          const texFloor = this.map.getSpriteMap().getSprite(tile).tex;
           
           let xTex = (xPixel - Math.floor(xPixel));
           let yTex = (yPixel - Math.floor(yPixel));
