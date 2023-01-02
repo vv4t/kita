@@ -184,7 +184,6 @@ export class Renderer {
         if (A > 0) {
           if (this.zBuffer[x + y * this.bitmap.width] < yRot)
             continue;
-          
           this.zBuffer[x + y* this.bitmap.width] = yRot;
         }
         
@@ -249,13 +248,17 @@ export class Renderer {
       zPos0 = zPos1;
       zPos1 = tmp3;
       
+      const tmp4 = startPos.z;
+      startPos.z = endPos.z;
+      endPos.z = tmp4;
+      
       xTex0 = 1.0;
       xTexDir = -1.0;
     }
     
     let yPixel00 = (-startPos.z - 0.5) * distFactor0 + this.halfHeight;
-    let yPixel10 = (-startPos.z - 0.5) * distFactor1 + this.halfHeight;
-    let yPixel01 = (-endPos.z + 0.5) * distFactor0 + this.halfHeight;
+    let yPixel10 = (-endPos.z - 0.5) * distFactor1 + this.halfHeight;
+    let yPixel01 = (-startPos.z + 0.5) * distFactor0 + this.halfHeight;
     let yPixel11 = (-endPos.z + 0.5) * distFactor1 + this.halfHeight;
     
     const xDelta = 1.0 / (xPixel1 - xPixel0);
