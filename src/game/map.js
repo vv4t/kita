@@ -60,10 +60,10 @@ export class Map {
     const y0 = Math.floor(yPos - yBox);
     const y1 = Math.floor(yPos + yBox);
     
-    return this.spriteMap.getSprite(this.getTile(x0, y0)).solid ||
-    this.spriteMap.getSprite(this.getTile(x1, y0)).solid ||
-    this.spriteMap.getSprite(this.getTile(x0, y1)).solid ||
-    this.spriteMap.getSprite(this.getTile(x1, y1)).solid;
+    return this.spriteMap.getSprite(this.getTile(x0, y0) & 255).solid ||
+    this.spriteMap.getSprite(this.getTile(x1, y0) & 255).solid ||
+    this.spriteMap.getSprite(this.getTile(x0, y1) & 255).solid ||
+    this.spriteMap.getSprite(this.getTile(x1, y1) & 255).solid;
   }
   
   // Cast a ray from a position in a certain direction and return the first wall it hits
@@ -96,7 +96,7 @@ export class Map {
     }
     
     let side = false;
-    while (!this.spriteMap.getSprite(this.getTile(xMap, yMap)).solid) {
+    while (!this.spriteMap.getSprite(this.getTile(xMap, yMap) & 255).solid) {
       if (xSideDist < ySideDist) {
         xSideDist += xDeltaDist;
         xMap += xStep;

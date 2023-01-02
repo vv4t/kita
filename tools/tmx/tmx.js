@@ -58,23 +58,25 @@ function tmxToMap(tmxPath)
   const properties = tmxMap.map.properties ? [].concat(tmxMap.map.properties) : [];
   const sky = getProperty("sky", properties)
   
-  const baseLayer = tmxMap.map.layer[0];
-  const baseData = baseLayer.data["#text"].replace(/\s/g, '').split(',').map((x) => (parseInt(x) - 1));
-  const baseWidth = parseInt(baseLayer.width);
-  const baseHeight = parseInt(baseLayer.height);
+  const floorLayer = tmxMap.map.layer.find(x => x.name == "floor");
+  const floorData = floorLayer.data["#text"].replace(/\s/g, '').split(',').map((x) => (parseInt(x) - 1));
+  const floorWidth = parseInt(floorLayer.width);
+  const floorHeight = parseInt(floorLayer.height);
   
-  const wallLayer = tmxMap.map.layer[1];
+  const ceilLayer = tmxMap.map.layer.find(x => x.name == "ceil");
+  const ceilData = ceilLayer.data["#text"].replace(/\s/g, '').split(',').map((x) => (parseInt(x)));
+  
+  const wallLayer = tmxMap.map.layer.find(x => x.name == "wall");
   const wallData = wallLayer.data["#text"].replace(/\s/g, '').split(',').map((x) => (parseInt(x) - 1));
   
   const walls = [];
+  const props = [];
+  const data = [];
   
   const groups = [].concat(tmxMap.map.objectgroup);
-  
   const propGroup = groups.find(x => x.name == "props");
   
-  const props = [];
-  
-  if (propGroup) {
+  if (propGroup && propGroup.object) {
     const mapProps = [].concat(propGroup.object);
     
     for (const prop of mapProps) {
@@ -86,9 +88,20 @@ function tmxToMap(tmxPath)
     }
   }
   
-  for (let y = 0; y < baseHeight; y++) {
-    for (let x = 0; x < baseWidth; x++) {
-      const tile = wallData[x + y * baseHeight];
+  for (let y = 0; y < floorHeight; y++) {
+    for (let x = 0; x < floorWidth; x++) {
+      const floorTile = floorData[x + y * floorWidth];
+      const ceilTile = ceilData[x + y * floorWidth];
+      
+      const tile = floorTile | ceilTile << 8;
+      
+      data.push(tile);
+    }
+  }
+  
+  for (let y = 0; y < floorHeight; y++) {
+    for (let x = 0; x < floorWidth; x++) {
+      const tile = wallData[x + y * floorWidth];
       
       if (tile > 0) {
         const id = tile;
@@ -102,7 +115,7 @@ function tmxToMap(tmxPath)
   
   const spr = path.parse(tmxMap.map.tileset.source).name;
   
-  return new MapFile(spr, sky, baseWidth, baseHeight, baseData, walls, props);
+  return new MapFile(spr, sky, floorWidth, floorHeight, data, walls, props);
 }
 
 function main()
