@@ -3,35 +3,6 @@ import { UserCommand } from "./game/userCommand.js";
 export class InputController {
   constructor(canvas)
   {
-    const keyDown = (e) => {
-      this.keyEvent(e.key, 1.0);
-    };
-    
-    const keyUp = (e) => {
-      this.keyEvent(e.key, 0.0);
-    };
-    
-    const mouseMove = (e) => {
-      this.mouseMove(e.movementX, e.movementY);
-    };
-    
-    document.addEventListener("pointerlockchange", (e) => {
-      if (document.pointerLockElement == canvas
-      || document.mozPointerLockElement == canvas) {
-        document.addEventListener("mousemove", mouseMove);
-        document.addEventListener("keydown", keyDown);
-        document.addEventListener("keyup", keyUp);
-      } else {
-        document.removeEventListener("mousemove", mouseMove);
-        document.removeEventListener("keydown", keyDown);
-        document.removeEventListener("keyup", keyUp);
-      }
-    });
-    
-    canvas.addEventListener("click", function() {
-      canvas.requestPointerLock();
-    });
-    
     this.lookSensitivity = 0.005;
     
     this.moveForward = 0.0;
@@ -41,9 +12,9 @@ export class InputController {
     this.mouseX = 0.0;
   }
   
-  mouseMove(movementX, movementY)
+  mouseMove(xMovement, yMovement)
   {
-    this.mouseX += movementX; 
+    this.mouseX += xMovement; 
   }
   
   keyEvent(key, action)
