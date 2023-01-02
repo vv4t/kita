@@ -42,7 +42,7 @@ export class Renderer {
     
     this.entitySpriteMap = null;
     spriteMapLoad("entitySprites", (spriteMap) => {
-        this.entitySpriteMap = spriteMap
+      this.entitySpriteMap = spriteMap
     })
   }
   
@@ -269,24 +269,29 @@ export class Renderer {
     let yPixel0 = yPixel00;
     let yPixel1 = yPixel01;
     
+    let xp0 = Math.floor(xPixel0);
+    let xp1 = Math.floor(xPixel1);
+    
     if (xPixel0 < 0) {
       yPixel0 += -xPixel0 * yDelta0;
       yPixel1 += -xPixel0 * yDelta1;
       izInterp += -xPixel0 * izDelta;
-      xPixel0 = 0;
+      xp0 = 0;
     }
     
     if (xPixel1 >= this.bitmap.width)
-      xPixel1 = this.bitmap.width;
-    
-    const xp0 = Math.floor(xPixel0);
-    const xp1 = Math.floor(xPixel1);
+      xp1 = this.bitmap.width;
     
     for (let x = xp0; x < xp1; x++) {
       const zPos = 1.0 / izInterp;
       const zInterp = (zPos - zPos0) / (zPos1 - zPos0);
       
-      const xTex = xTex0 + xTexDir * zInterp;
+      let xTex;
+      if (izDelta == 0)
+        xTex = xTex0 + xTexDir * (x - xPixel0) / (xPixel1 - xPixel0);
+      else
+        xTex= xTex0 + xTexDir * zInterp;
+      
       const xt = Math.floor(xTex * wallTex.height);
       
       const yp0 = Math.floor(yPixel0);
@@ -389,11 +394,13 @@ export class Renderer {
           const ceilTile = (this.map.getTile(xTile, yTile) >> 8) & 255;
           
           if (ceilTile || y >= yPixel1) {
-            let tex;
+            let spriteID;
             if (y >= yPixel1)
-              tex = this.map.getSpriteMap().getSprite(floorTile).tex
+              spriteID = floorTile;
             else
-              tex = this.map.getSpriteMap().getSprite(ceilTile - 1).tex
+              spriteID = ceilTile - 1;
+            
+            const tex = this.map.getSpriteMap().getSprite(spriteID).tex
             
             let xTex = (xPixel - Math.floor(xPixel));
             let yTex = (yPixel - Math.floor(yPixel));
