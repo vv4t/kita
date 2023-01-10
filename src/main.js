@@ -17,6 +17,7 @@ import { Screen } from "./screen.js";
   
   // i should probably make classes with the event listeners inherit a base class with such functions
   // but i like this better oops
+  // maybe the base class would be better but ill do that later
   screen.addEventListener("keyEvent", (key, action) => {
     inputController.keyEvent(key, action);
   });
@@ -25,11 +26,15 @@ import { Screen } from "./screen.js";
     inputController.mouseMove(xMovement, yMovement);
   });
   
+  screen.addEventListener("mouseEvent", (button, action) => {
+    inputController.mouseEvent(button, action);
+  });
+  
   game.addEventListener("mapLoad", (map) => {
     renderer.mapLoad(map);
   });
   
-  game.mapLoad("nexus");
+  // game.mapLoad("nexus");
   
   let prevTime = performance.now();
 
@@ -38,8 +43,8 @@ import { Screen } from "./screen.js";
     const deltaTime = (nowTime - prevTime) * 0.001;
     prevTime = nowTime;
     
-    game.update(deltaTime, inputController.getUserCommand());
-    renderer.renderGame(game);
+    // game.update(deltaTime, inputController.getUserCommand());
+    // renderer.renderGame(game);
     bitmap.swap();
     screen.swap(bitmap);
     

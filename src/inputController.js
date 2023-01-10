@@ -17,6 +17,11 @@ export class InputController {
     this.mouseX += xMovement; 
   }
   
+  mouseEvent(button, action)
+  {
+    
+  }
+  
   keyEvent(key, action)
   {
     switch (key) {

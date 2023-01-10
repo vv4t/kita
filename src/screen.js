@@ -31,12 +31,12 @@ export class Screen {
     
     const mouseDown = (e) => {
       for (const action of this.listeners["mouseEvent"])
-        action(e.key, 1.0);
+        action(e.button, 1.0);
     };
     
     const mouseUp = (e) => {
       for (const action of this.listeners["mouseEvent"])
-        action(e.key, 0.0);
+        action(e.button, 0.0);
     };
     
     document.addEventListener("pointerlockchange", (e) => {

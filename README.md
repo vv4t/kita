@@ -2,6 +2,8 @@
 
 キターン
 
+![KITA](kita-aura.jpg)
+
 ## TODO
 
 - [x] Raycasting renderer
