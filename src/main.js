@@ -34,7 +34,7 @@ import { Screen } from "./screen.js";
     renderer.mapLoad(map);
   });
   
-  // game.mapLoad("nexus");
+  game.mapLoad("nexus");
   
   let prevTime = performance.now();
 
@@ -43,8 +43,8 @@ import { Screen } from "./screen.js";
     const deltaTime = (nowTime - prevTime) * 0.001;
     prevTime = nowTime;
     
-    // game.update(deltaTime, inputController.getUserCommand());
-    // renderer.renderGame(game);
+    game.update(deltaTime, inputController.getUserCommand());
+    renderer.renderGame(game);
     bitmap.swap();
     screen.swap(bitmap);
     
