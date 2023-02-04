@@ -10,9 +10,11 @@ export class SprConfig {
 };
 
 class SpriteMap {
-  constructor(spriteArr)
+  constructor(spriteArr, spriteWidth, spriteHeight)
   {
     this.spriteArr = spriteArr;
+    this.spriteWidth = spriteWidth;
+    this.spriteHeight = spriteHeight;
   }
   
   getSprite(id)
@@ -68,7 +70,7 @@ export function spriteMapLoad(sprPath, onLoad)
         }
       }
       
-      onLoad(new SpriteMap(sprArr));
+      onLoad(new SpriteMap(sprArr, sprFile.sprWidth, sprFile.sprHeight));
     });
   });
 }

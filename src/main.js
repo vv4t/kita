@@ -9,32 +9,31 @@ import { Screen } from "./screen.js";
 (function() {
   const screen = new Screen(document.getElementById("canvas"));
   const bitmap = new Bitmap(256, 144);
-  // const renderer = new Renderer(bitmap);
+  const renderer = new Renderer(bitmap);
   const gui = new GUI(bitmap);
   // const inputController = new InputController(canvas);
-  // const game = new Game();
+  const game = new Game();
   
   screen.addEventListener("keyEvent", (key, action) => {
+    gui.keyEvent(key, action);
     // inputController.keyEvent(key, action);
   });
   
   screen.addEventListener("mouseMove", (xMovement, yMovement) => {
+    gui.mouseMove(xMovement, yMovement);
     // inputController.mouseMove(xMovement, yMovement);
   });
   
   screen.addEventListener("mouseEvent", (button, action) => {
+    gui.mouseEvent(button, action);
     // inputController.mouseEvent(button, action);
   });
   
-  /*
   game.addEventListener("mapLoad", (map) => {
     renderer.mapLoad(map);
   });
   
   game.mapLoad("nexus");
-  */
-  
-  gui.focus();
   
   let prevTime = performance.now();
 
@@ -44,7 +43,7 @@ import { Screen } from "./screen.js";
     prevTime = nowTime;
     
     // game.update(deltaTime, inputController.getUserCommand());
-    // renderer.renderGame(game);
+    renderer.renderGame(game);
     gui.renderGUI();
     
     bitmap.swap();
