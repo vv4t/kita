@@ -9,32 +9,32 @@ import { Screen } from "./screen.js";
 (function() {
   const screen = new Screen(document.getElementById("canvas"));
   const bitmap = new Bitmap(256, 144);
-  const renderer = new Renderer(bitmap);
+  // const renderer = new Renderer(bitmap);
   const gui = new GUI(bitmap);
-  const inputController = new InputController(canvas);
+  // const inputController = new InputController(canvas);
+  // const game = new Game();
   
-  const game = new Game();
-  
-  // i should probably make classes with the event listeners inherit a base class with such functions
-  // but i like this better oops
-  // maybe the base class would be better but ill do that later
   screen.addEventListener("keyEvent", (key, action) => {
-    inputController.keyEvent(key, action);
+    // inputController.keyEvent(key, action);
   });
   
   screen.addEventListener("mouseMove", (xMovement, yMovement) => {
-    inputController.mouseMove(xMovement, yMovement);
+    // inputController.mouseMove(xMovement, yMovement);
   });
   
   screen.addEventListener("mouseEvent", (button, action) => {
-    inputController.mouseEvent(button, action);
+    // inputController.mouseEvent(button, action);
   });
   
+  /*
   game.addEventListener("mapLoad", (map) => {
     renderer.mapLoad(map);
   });
   
   game.mapLoad("nexus");
+  */
+  
+  gui.focus();
   
   let prevTime = performance.now();
 
@@ -43,8 +43,10 @@ import { Screen } from "./screen.js";
     const deltaTime = (nowTime - prevTime) * 0.001;
     prevTime = nowTime;
     
-    game.update(deltaTime, inputController.getUserCommand());
-    renderer.renderGame(game);
+    // game.update(deltaTime, inputController.getUserCommand());
+    // renderer.renderGame(game);
+    gui.renderGUI();
+    
     bitmap.swap();
     screen.swap(bitmap);
     

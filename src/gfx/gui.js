@@ -18,6 +18,12 @@ export class GUI {
     });
   }
   
+  renderGUI()
+  {
+    this.drawRect(10, 10, 10, 10);
+    this.drawText("hi there", 15, 15);
+  }
+  
   drawRect(xStart, yStart, width, height)
   {
     const xEnd = xStart + width;
