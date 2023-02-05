@@ -26,6 +26,8 @@ function run(font)
   input.bindAction("s", "back");
   input.bindAction("d", "right");
   
+  input.bind("p", "pause_menu");
+  
   screen.addEventListener("keyEvent", (key, action) => {
     gui.keyEvent(key, action);
     input.keyEvent(key, action);

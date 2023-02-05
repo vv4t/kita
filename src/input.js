@@ -1,9 +1,9 @@
 import { UserCommand } from "./game/userCommand.js";
 
-class FuncBind {
-  constructor(func)
+class Bind {
+  constructor(name)
   {
-    this.func = func;
+    this.name = name;
     this.active = false;
   }
 };
@@ -19,7 +19,8 @@ export class Input {
     this.actionBinds = {};
     this.actionStates = {};
     
-    this.funcBinds = {};
+    this.bindKeys = {};
+    this.bindFuncs = {};
   }
   
   startAction()
@@ -41,10 +42,20 @@ export class Input {
     this.actionStates[action] = 0.0;
   }
   
-  bind(key, func)
+  bind(key, name)
   {
-    if (!this.funcBinds[key])
-      this.funcBinds[key] = new FuncBind(func);
+    if (!this.bindKeys[key])
+      this.bindKeys[key] = new Bind(name);
+  }
+  
+  setBind(name, func)
+  {
+    this.bindFuncs[name] = func;
+  }
+  
+  clearBind(name)
+  {
+    delete this.bindFuncs[name];
   }
   
   mouseMove(xMovement, yMovement)
@@ -60,14 +71,14 @@ export class Input {
   
   keyEvent(key, action)
   {
-    if (this.funcBinds[key]) {
+    if (this.bindKeys[key]) {
       if (action) {
-        if (!this.funcBinds[key].active) {
-          this.funcBinds[key].func();
-          this.funcBinds[key].active = true;
+        if (!this.bindKeys[key].active) {
+          this.bindFuncs[this.bindKeys[key].name]();
+          this.bindKeys[key].active = false;
         }
       } else {
-        this.funcBinds[key].active = false;
+        this.bindKeys[key].active = false;
       }
     }
     

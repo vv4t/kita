@@ -14,7 +14,7 @@ export class GameState {
     this.gui.isActive = false;
     this.input.startAction();
     
-    this.input.bind("p", () => {
+    this.input.setBind("pause_menu", () => {
       this.gui.isActive = true;
       this.input.stopAction();
     });
@@ -50,6 +50,7 @@ export class GameState {
   unload()
   {
     this.gui.unload();
+    this.input.clearBind("pause_menu");
   }
   
   update(deltaTime)
