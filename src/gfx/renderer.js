@@ -46,7 +46,7 @@ export class Renderer {
     })
   }
   
-  renderGame(game)
+  render(game)
   {
     this.lockCamera(game.player);
     this.renderMap();

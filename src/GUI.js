@@ -1,107 +1,199 @@
 import { Vector2 } from "./util/math.js";
 
-export class GUIButtonState {
-  static RELEASE  = 0;
-  static HOVER    = 1;
-  static HOLD     = 2;
+class GUIElement {
+  constructor(offset, size)
+  {
+    this.offset = offset;
+    this.size = size;
+    
+    this.children = [];
+    this.events = {};
+    
+    this.events["keyEvent"] = [];
+    this.events["mouseEvent"] = [];
+    this.events["mouseMove"] = [];
+    this.events["mouseEnter"] = [];
+    
+    this.isFocused = false;
+    this.isVisible = false;
+    this.inBound = false;
+    
+    this.addEventListener("mouseEvent", () => {
+      this.isFocused = true;
+      
+      for (const child of this.children)
+        child.isFocused = false;
+    });
+  }
+  
+  triggerEvent(eventName, triggerCondition, ...eventArgs)
+  {
+    if (triggerCondition) {
+      if (!triggerCondition(this))
+        return;
+    }
+    
+    if (this.events[eventName]) {
+      for (const eventAction of this.events[eventName])
+        eventAction(...eventArgs);
+    }
+    
+    for (const child of this.children) {
+      if (child.isVisible)
+        child.triggerEvent(eventName, triggerCondition, ...eventArgs);
+    }
+  }
+  
+  addChild(child)
+  {
+    this.children.push(child);
+  }
+  
+  addEventListener(eventName, action)
+  {
+    if (!this.events[eventName])
+      this.events[eventName] = [];
+    
+    this.events[eventName].push(action);
+  }
 };
 
-class GUIButton {
-  constructor(text, xOffset, yOffset, width, height, onRelease)
+export class GUILabel extends GUIElement {
+  constructor(text, fontSpriteMap, offset)
   {
+    super(
+      offset,
+      new Vector2(
+        text.length * (fontSpriteMap.spriteWidth + 1) + 3,
+        fontSpriteMap.spriteHeight + 4
+      )
+    );
+    
+    this.fontSpriteMap = fontSpriteMap;
     this.text = text;
-    this.xOffset = xOffset;
-    this.yOffset = yOffset;
-    this.width = width;
-    this.height = height;
-    this.onRelease = onRelease;
+  }
+};
+
+export class GUIButtonState {
+  static RELEASE = 0;
+  static HOVER = 1;
+  static HOLD = 2;
+};
+
+export class GUIButton extends GUIElement {
+  constructor(base, offset, size)
+  {
+    super(offset, size);
+    
     this.state = GUIButtonState.RELEASE;
+    
+    this.addChild(base);
+    
+    this.addEventListener("mouseEnter", () => {
+      this.state = GUIButtonState.HOVER;
+    });
+    
+    this.addEventListener("mouseExit", () => {
+      this.state = GUIButtonState.RELEASE;
+    });
+    
+    this.addEventListener("mouseEvent", (button, action) => {
+      if (action) {
+        this.state = GUIButtonState.HOLD;
+      } else {
+        this.state = GUIButtonState.HOVER;
+        this.triggerEvent("onClick", null, button);
+      }
+    });
   }
 };
 
 export class GUI {
-  constructor(bitmap, fontSpriteMap)
+  constructor(bitmap)
   {
     this.bitmap = bitmap;
-    this.fontSpriteMap = fontSpriteMap;
-    this.buttons = [];
     
     this.mousePos = new Vector2(0.0, 0.0);
     this.mouseSensitivity = 0.25;
+    this.isActive = false;
+    
+    this.elements = [];
   }
   
-  update(deltaTime)
+  addElement(element)
   {
-    this.buttonHover();
-  }
-  
-  addButton(text, xOffset, yOffset, onRelease)
-  {
-    this.buttons.push(new GUIButton(
-      text,
-      xOffset,
-      yOffset,
-      text.length * (this.fontSpriteMap.spriteWidth + 1) + 3,
-      this.fontSpriteMap.spriteHeight + 4,
-      onRelease));
+    this.elements.push(element);
   }
   
   keyEvent(key, action)
   {
+    if (!this.isActive)
+      return false;
     
+    for (const element of this.elements)
+      element.triggerEvent("keyEvent", (_self) => _self.isFocused, key, action);
+  }
+  
+  mouseEvent(button, action)
+  {
+    if (!this.isActive)
+      return;
+    
+    for (const element of this.elements) {
+      element.isFocused = false;
+      element.triggerEvent(
+        "mouseEvent",
+        (_self) => {
+          return boxBoundPos(this.mousePos, _self.offset, _self.size);
+        },
+        button, action
+      );
+    }
   }
   
   mouseMove(xMovement, yMovement)
   {
-    this.mouseUpdate(xMovement, yMovement);
-  }
-  
-  mouseEvent(buttonID, action)
-  {
-    this.buttonClick(buttonID, action);
-  }
-  
-  buttonClick(buttonID, action)
-  {
-    for (const button of this.buttons) {
-      if (buttonID != 0)
-        continue;
-      
-      if (button.state == GUIButtonState.HOVER && action)
-        button.state = GUIButtonState.HOLD;
-      else if (button.state == GUIButtonState.HOLD && !action) {
-        button.state = GUIButtonState.HOVER;
-        if (button.onRelease)
-          button.onRelease();
-      }
+    if (!this.isActive)
+      return;
+    
+    for (const element of this.elements) {
+      element.triggerEvent(
+        "mouseMove",
+        (_self) => {
+          const inBound = boxBoundPos(this.mousePos, _self.offset, _self.size);
+          
+          if (!_self.inBound && inBound)
+            element.triggerEvent("mouseEnter", null);
+          else if (_self.inBound && !inBound)
+            element.triggerEvent("mouseExit", null);
+          
+          _self.inBound = inBound;
+          
+          return inBound;
+        },
+        xMovement, yMovement
+      );
     }
-  }
-  
-  buttonHover()
-  {
-    for (const button of this.buttons) {
-      if (button.state == GUIButtonState.HOLD)
-        continue;
-      
-      if (this.mousePos.x > button.xOffset
-      && this.mousePos.x < button.xOffset + button.width
-      && this.mousePos.y > button.xOffset
-      && this.mousePos.y < button.yOffset + button.height) {
-        button.state = GUIButtonState.HOVER;
-      } else {
-        button.state = GUIButtonState.RELEASE;
-      }
-    }
-  }
-  
-  mouseUpdate(xMovement, yMovement)
-  {
+    
     const newPos = this.mousePos.copy().add(new Vector2(xMovement, yMovement).mulf(this.mouseSensitivity));
     
-    if (newPos.x >= 1 && newPos.x <= this.bitmap.width - 1)
+    if (newPos.x > 0 && newPos.x < this.bitmap.width)
       this.mousePos.x = newPos.x;
     
-    if (newPos.y >= 1 && newPos.y <= this.bitmap.height - 1)
+    if (newPos.y > 0 && newPos.y < this.bitmap.height)
       this.mousePos.y = newPos.y;
   }
+  
+  setActive(isActive)
+  {
+    this.isActive = isActive;
+  }
 };
+
+function boxBoundPos(pos, boxPos, boxSize)
+{
+  return pos.x >= boxPos.x
+  && pos.y >= boxPos.y
+  && pos.x <= boxPos.x + boxSize.x
+  && pos.y <= boxPos.y + boxSize.y;
+}

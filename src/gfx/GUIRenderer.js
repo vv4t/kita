@@ -13,22 +13,47 @@ export class GUIRenderer {
     this.fontSpriteMap = fontSpriteMap;
   }
   
-  renderGUI(gui)
+  render(gui)
   {
-    this.drawRect(
-      Math.floor(gui.mousePos.x) - 1,
-      Math.floor(gui.mousePos.y) - 1,
-      2, 2,
-      [ 255, 255, 255, 255]);
+    if (!gui.isActive)
+      return;
     
-    for (const button of gui.buttons)
-      this.drawButton(button);
+    this.drawMouse(gui.mousePos);
+    
+    for (const element of gui.elements)
+      this.drawElement(new Vector2(0, 0), element);
   }
   
-  drawButton(button)
+  drawMouse(mousePos)
+  {
+    this.drawRect(
+      Math.floor(mousePos.x) - 1,
+      Math.floor(mousePos.y) - 1,
+      2, 2,
+      [ 255, 255, 255, 255 ]);
+  }
+  
+  drawElement(offset, element)
+  {
+    switch (element.constructor.name) {
+    case "GUILabel":
+      this.drawLabel(offset, element);
+      break;
+    case "GUIButton":
+      this.drawButton(offset, element);
+      break;
+    }
+    
+    const elemOffset = offset.copy().add(element.offset);
+    
+    for (const child of element.children)
+      this.drawElement(elemOffset, child);
+  }
+  
+  drawButton(offset, element)
   {
     let color;
-    switch (button.state) {
+    switch (element.state) {
     case GUIButtonState.RELEASE:
       color = [ 255, 255, 255, 255 ];
       break;
@@ -41,13 +66,20 @@ export class GUIRenderer {
     }
     
     this.drawRect(
-      button.xOffset,
-      button.yOffset,
-      button.width,
-      button.height,
+      Math.floor(offset.x + element.offset.x),
+      Math.floor(offset.y + element.offset.y),
+      Math.floor(element.size.x),
+      Math.floor(element.size.y),
       color);
-    
-    this.drawText(button.text, button.xOffset + 2, button.yOffset + 2, color);
+  }
+  
+  drawLabel(offset, element)
+  {
+    this.drawText(
+      element.text,
+      Math.floor(offset.x + element.offset.x),
+      Math.floor(offset.y + element.offset.y),
+      [ 255, 255, 255, 255 ]);
   }
   
   drawRect(xStart, yStart, width, height, color)
@@ -73,8 +105,8 @@ export class GUIRenderer {
     
     const lowerText = text.toLowerCase();
     
-    for (let i = 0; i < text.length; i++) {
-      const charASCII = text.charCodeAt(i);
+    for (let i = 0; i < lowerText.length; i++) {
+      const charASCII = lowerText.charCodeAt(i);
       
       let spriteID = 0;
       
@@ -82,13 +114,13 @@ export class GUIRenderer {
         spriteID = charASCII - ALPHA_BEGIN;
       else if (charASCII >= NUM_BEGIN && charASCII <= NUM_END)
         spriteID = 25 + charASCII - NUM_BEGIN;
-      else if (text[i] == ".")
+      else if (lowerText[i] == ".")
         spriteID = 36;
-      else if (text[i] == "?")
+      else if (lowerText[i] == "?")
         spriteID = 37;
-      else if (text[i] == "!")
+      else if (lowerText[i] == "!")
         spriteID = 38;
-      else if (text[i] == " ")
+      else if (lowerText[i] == " ")
         continue;
       
       const texChar = this.fontSpriteMap.getSprite(spriteID).tex;
