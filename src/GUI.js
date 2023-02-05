@@ -109,14 +109,20 @@ export class GUIButton extends GUIElement {
 };
 
 export class GUI {
-  constructor(bitmap)
+  constructor(bitmap, font)
   {
     this.bitmap = bitmap;
+    this.font = font;
     
     this.mousePos = new Vector2(0.0, 0.0);
     this.mouseSensitivity = 0.25;
     this.isActive = false;
     
+    this.elements = [];
+  }
+  
+  unload()
+  {
     this.elements = [];
   }
   
