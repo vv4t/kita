@@ -1,20 +1,18 @@
 import { mapLoad } from "./map.js";
 import { Player } from "./entities/player.js";
 import { Vector3 } from "../util/math.js";
-import { Zombie } from "./entities/zombie.js";
 
 export class Game {
   constructor()
   {
     this.map = null;
-    this.entities = []
     
+    this.entities = [];
     this.player = new Player(new Vector3(3.0, 3.0, 0.2), 0.0);
-    this.entities.push(this.player)
+    this.entities.push(this.player);
 
-    this.entities.push(new Zombie(new Vector3(5.0, 2.0, 0.0))) //testing
-
-    this.onMapLoadCallbacks = [];
+    this.events = {};
+    this.events["mapLoad"] = [];
   }
   
   update(delta, userCommand)
@@ -24,22 +22,28 @@ export class Game {
     }
   }
   
-  addEventListener(eventName, callback)
+  addEventListener(eventName, action)
   {
     switch (eventName) {
     case "mapLoad":
-      this.onMapLoadCallbacks.push(callback);
+      this.events["mapLoad"].push(action);
       break;
     }
   }
   
+  unload()
+  {
+    this.entities = [];
+    this.entities.push(this.player);
+  }
+  
   mapLoad(mapName)
   {
-    mapLoad("nexus", (map) => {
+    mapLoad(mapName, (map) => {
       this.map = map;
       
-      for (const mapLoadCallback of this.onMapLoadCallbacks)
-        mapLoadCallback(map);
+      for (const action of this.events["mapLoad"])
+        action(map);
     });
   }
 };

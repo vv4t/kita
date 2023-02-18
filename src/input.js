@@ -53,9 +53,9 @@ export class Input {
     this.bindFuncs[name] = func;
   }
   
-  clearBind(name)
+  unload()
   {
-    delete this.bindFuncs[name];
+    this.bindFuncs = {};
   }
   
   mouseMove(xMovement, yMovement)
