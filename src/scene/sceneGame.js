@@ -1,6 +1,5 @@
 import { BaseScene } from "./baseScene.js";
 import { Vector2, Vector3 } from "../util/math.js";
-import { GUIButton, GUILabel } from "../GUI.js";
 import { Zombie } from "../game/entities/zombie.js";
 
 export class SceneGame extends BaseScene {
@@ -32,17 +31,19 @@ export class SceneGame extends BaseScene {
   
   initGUI()
   {
-    const btnContinue = new GUIButton(
-      new GUILabel("continue", this.app.gui.font, new Vector2(2, 2)),
+    const btnContinue = this.app.gui.createButton(
       new Vector2(10, 10),
       new Vector2(64, 9)
     );
     
-    const btnQuit = new GUIButton(
-      new GUILabel("quit", this.app.gui.font, new Vector2(2, 2)),
+    btnContinue.addChild(this.app.gui.createLabel("continue", new Vector2(2, 2)));
+    
+    const btnQuit = this.app.gui.createButton (
       new Vector2(10, btnContinue.offset.y + btnContinue.size.y + 1),
       new Vector2(64, 9)
     );
+    
+    btnQuit.addChild(this.app.gui.createLabel("quit", new Vector2(2, 2)));
     
     btnContinue.addEventListener("onClick", () => {
       this.app.gui.isActive = false;

@@ -1,6 +1,6 @@
 import { Game } from "./game/game.js";
 import { Input } from "./input.js";
-import { GUI } from "./GUI.js";
+import { GUI } from "./gui/gui.js";
 import { GUIRenderer } from "./gfx/GUIRenderer.js";
 import { Bitmap } from "./gfx/bitmap.js";
 import { Renderer } from "./gfx/renderer.js";

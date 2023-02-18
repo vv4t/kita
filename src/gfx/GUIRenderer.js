@@ -1,5 +1,5 @@
 import { clamp, Vector2 } from "../util/math.js";
-import { GUIButtonState } from "../GUI.js";
+import { GUIButtonState } from "../gui/guiButton.js";
 
 const ALPHA_BEGIN = "a".charCodeAt(0);
 const ALPHA_END = "z".charCodeAt(0);

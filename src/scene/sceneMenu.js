@@ -1,6 +1,5 @@
 import { Vector2 } from "../util/math.js";
 import { UserCommand } from "../game/userCommand.js";
-import { GUIButton, GUILabel } from "../GUI.js";
 
 export class SceneMenu {
   constructor(app)
@@ -26,13 +25,14 @@ export class SceneMenu {
   
   initGUI()
   {
-    const lblKita = new GUILabel("KITA", this.app.gui.font, new Vector2(10, 10));
+    const lblKita = this.app.gui.createLabel("KITA", new Vector2(10, 10));
     
-    const btnPlay = new GUIButton(
-      new GUILabel("play", this.app.gui.font, new Vector2(2, 2)),
+    const btnPlay = this.app.gui.createButton(
       new Vector2(10, lblKita.offset.y + lblKita.size.y + 1),
       new Vector2(64, 9)
     );
+    
+    btnPlay.addChild(this.app.gui.createLabel("play", new Vector2(2, 2)));
     
     btnPlay.addEventListener("onClick", () => {
       this.app.sceneLoad("sceneGame");
