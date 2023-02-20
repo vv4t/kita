@@ -1,1 +1,9 @@
-{"src":"font","imgWidth":65,"imgHeight":15,"columns":13,"sprWidth":5,"sprHeight":5,"sprCount":39,"sprConfig":{}}
+{
+  "src": "font",
+  "imgWidth": 65,
+  "imgHeight": 15,
+  "columns": 13,
+  "sprWidth": 5,
+  "sprHeight": 5,
+  "sprCount": 39
+}

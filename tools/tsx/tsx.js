@@ -2,24 +2,24 @@ import fs from "fs";
 import path from "path";
 import { XMLParser } from "fast-xml-parser";
 
-class SprConfig {
+class TsConfig {
   constructor(solid)
   {
     this.solid = solid;
   }
 };
 
-class SprFile {
-  constructor(src, imgWidth, imgHeight, columns, sprWidth, sprHeight, sprCount, sprConfig)
+class TsFile {
+  constructor(src, imgWidth, imgHeight, columns, tsWidth, tsHeight, tsCount, tsConfig)
   {
     this.src = src;
     this.imgWidth = imgWidth;
     this.imgHeight = imgHeight;
     this.columns = columns;
-    this.sprWidth = sprWidth;
-    this.sprHeight = sprHeight;
-    this.sprCount = sprCount;
-    this.sprConfig = sprConfig;
+    this.tsWidth = tsWidth;
+    this.tsHeight = tsHeight;
+    this.tsCount = tsCount;
+    this.tsConfig = tsConfig;
   }
 };
 
@@ -33,7 +33,7 @@ function getProperty(name, properties)
   return null;
 }
 
-function tsxToSpr(tsxPath)
+function tsxToTs(tsxPath)
 {
   const xmlData = fs.readFileSync(tsxPath);
   
@@ -45,7 +45,7 @@ function tsxToSpr(tsxPath)
   const parser = new XMLParser(options);
   const tileset = parser.parse(xmlData).tileset;
   
-  const sprConfig = {};
+  const tsConfig = {};
   if (tileset.tile) {
     const tiles = [].concat(tileset.tile);
     
@@ -54,34 +54,34 @@ function tsxToSpr(tsxPath)
       const id = parseInt(tile.id);
       const solid = getProperty("solid", properties) == "true";
       
-      sprConfig[id] = new SprConfig(solid);
+      tsConfig[id] = new TsConfig(solid);
     }
   }
   
   const src = path.parse(tileset.image.source).name;
   
-  return new SprFile(
+  return new TsFile(
     src,
     parseInt(tileset.image.width), parseInt(tileset.image.height), parseInt(tileset.columns),
     parseInt(tileset.tilewidth), parseInt(tileset.tileheight),
     parseInt(tileset.tilecount),
-    sprConfig
-    );
+    tsConfig
+  );
 }
 
 function main()
 {
   if (process.argv.length != 4) {
-    console.log("usage:", path.parse(process.argv[1]).name, "<tsx> <spr>");
+    console.log("usage:", path.parse(process.argv[1]).name, "<tsx> <ts>");
     process.exit(1);
   }
   
   const tsxPath = process.argv[2];
-  const sprPath = process.argv[3];
+  const tsPath = process.argv[3];
   
-  const sprFile = tsxToSpr(tsxPath);
+  const tsFile = tsxToTs(tsxPath);
   
-  fs.writeFileSync(sprPath, JSON.stringify(sprFile));
+  fs.writeFileSync(tsPath, JSON.stringify(tsFile));
 }
 
 main();
