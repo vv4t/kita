@@ -2,23 +2,34 @@ import fs from "fs";
 import path from "path";
 import { XMLParser } from "fast-xml-parser";
 
+const TS_PATH = "../../assets/ts/";
+const SPR_PATH= "../../assets/spr/";
+
 class TsConfig {
-  constructor(solid)
+  constructor(id, solid)
   {
+    this.id = id;
     this.solid = solid;
   }
 };
 
-class TsFile {
-  constructor(src, imgWidth, imgHeight, columns, tsWidth, tsHeight, tsCount, tsConfig)
+class SprFile {
+  constructor(src, imgWidth, imgHeight, columns, sprWidth, sprHeight, sprCount)
   {
     this.src = src;
     this.imgWidth = imgWidth;
     this.imgHeight = imgHeight;
     this.columns = columns;
-    this.tsWidth = tsWidth;
-    this.tsHeight = tsHeight;
-    this.tsCount = tsCount;
+    this.sprWidth = sprWidth;
+    this.sprHeight = sprHeight;
+    this.sprCount = sprCount;
+  }
+};
+
+class TsFile {
+  constructor(spr, tsConfig)
+  {
+    this.spr = spr;
     this.tsConfig = tsConfig;
   }
 };
@@ -45,7 +56,7 @@ function tsxToTs(tsxPath)
   const parser = new XMLParser(options);
   const tileset = parser.parse(xmlData).tileset;
   
-  const tsConfig = {};
+  const tsConfig = [];
   if (tileset.tile) {
     const tiles = [].concat(tileset.tile);
     
@@ -54,17 +65,24 @@ function tsxToTs(tsxPath)
       const id = parseInt(tile.id);
       const solid = getProperty("solid", properties) == "true";
       
-      tsConfig[id] = new TsConfig(solid);
+      tsConfig.push(new TsConfig(id, solid));
     }
   }
   
   const src = path.parse(tileset.image.source).name;
   
-  return new TsFile(
+  const sprPath = SPR_PATH + src + ".spr";
+  const sprFile = new SprFile(
     src,
     parseInt(tileset.image.width), parseInt(tileset.image.height), parseInt(tileset.columns),
     parseInt(tileset.tilewidth), parseInt(tileset.tileheight),
-    parseInt(tileset.tilecount),
+    parseInt(tileset.tilecount)
+  );
+  
+  fs.writeFileSync(sprPath, JSON.stringify(sprFile));
+  
+  return new TsFile(
+    src,
     tsConfig
   );
 }
@@ -77,8 +95,8 @@ function main()
   }
   
   const tsxPath = process.argv[2];
-  const tsPath = process.argv[3];
   
+  const tsPath = TS_PATH + process.argv[3] + ".ts";
   const tsFile = tsxToTs(tsxPath);
   
   fs.writeFileSync(tsPath, JSON.stringify(tsFile));

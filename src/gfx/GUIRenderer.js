@@ -123,7 +123,7 @@ export class GUIRenderer {
       else if (lowerText[i] == " ")
         continue;
       
-      const texChar = this.fontSpriteMap.getSprite(spriteID).tex;
+      const texChar = this.fontSpriteMap.getSprite(spriteID);
       this.drawTextureShade(texChar, i * (texChar.width + 1) + xOffset, yOffset, color);
     }
   }

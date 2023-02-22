@@ -71,8 +71,9 @@ export class Renderer {
     
     for (const prop of this.map.getProps()) {
       this.renderSprite(
-        this.map.getSpriteMap().getSprite(prop.spriteID).tex,
-        new Vector3(prop.xPos, prop.yPos, 0.0));
+        this.map.tileSet.spriteMap.getSprite(prop.spriteID),
+        new Vector3(prop.xPos, prop.yPos, 0.0)
+      );
     }
   }
   
@@ -85,7 +86,7 @@ export class Renderer {
       if (entity.spriteID == -1)
         continue;
       
-      this.renderSprite(this.entitySpriteMap.getSprite(entity.spriteID).tex, entity.pos);
+      this.renderSprite(this.entitySpriteMap.getSprite(entity.spriteID), entity.pos);
     }
   }
   
@@ -112,7 +113,7 @@ export class Renderer {
       start.add(new Vector3(wall.xPos + 0.5, wall.yPos + 0.5, 0.0));
       end.add(new Vector3(wall.xPos + 0.5, wall.yPos + 0.5, 0.0));
       
-      const tex = map.getSpriteMap().getSprite(wall.tile & 255).tex;
+      const tex = map.tileSet.spriteMap.getSprite(wall.tile & 255);
       this.mapWalls.push(new MapWall(start, end, tex));
     }
     
@@ -335,7 +336,7 @@ export class Renderer {
       
       const rayHit = this.map.rayCast(this.camera.pos, new Vector3(xRayDir, yRayDir, 0.0));
       const tile = this.map.getTile(rayHit.xMap, rayHit.yMap);
-      const texWall = this.map.getSpriteMap().getSprite(tile & 255).tex;
+      const texWall = this.map.tileSet.spriteMap.getSprite(tile & 255);
 
       let wallDist, xWall;
       if (rayHit.side) {
@@ -400,7 +401,7 @@ export class Renderer {
             else
               spriteID = ceilTile - 1;
             
-            const tex = this.map.getSpriteMap().getSprite(spriteID).tex
+            const tex = this.map.tileSet.spriteMap.getSprite(spriteID);
             
             let xTex = (xPixel - Math.floor(xPixel));
             let yTex = (yPixel - Math.floor(yPixel));

@@ -1,14 +1,6 @@
 import { Texture, textureLoad } from "./texture.js";
 import { fileLoad } from "../util/file.js";
 
-export class SprConfig {
-  constructor(solid, tex)
-  {
-    this.solid = solid;
-    this.tex = tex;
-  }
-};
-
 class SpriteMap {
   constructor(spriteArr, spriteWidth, spriteHeight)
   {
@@ -57,16 +49,7 @@ export function spriteMapLoad(sprPath, onLoad)
             }
           }
           
-          const tID = i * sprFile.columns + j;
-          const sprConfig = sprFile.sprConfig[tID];
-          
-          let solid = false;
-          
-          if (sprConfig) {
-            solid = sprConfig.solid;
-          }
-          
-          sprArr.push(new SprConfig(solid, tex));
+          sprArr.push(tex);
         }
       }
       

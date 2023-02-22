@@ -2,10 +2,12 @@ import fs from "fs";
 import path from "path";
 import { XMLParser } from "fast-xml-parser";
 
+const MAP_PATH = "../../assets/map/";
+
 class MapFile {
-  constructor(spr, sky, width, height, data, walls, props)
+  constructor(ts, sky, width, height, data, walls, props)
   {
-    this.spr = spr;
+    this.ts= ts;
     this.sky = sky;
     this.width = width;
     this.height = height;
@@ -113,9 +115,9 @@ function tmxToMap(tmxPath)
     }
   }
   
-  const spr = path.parse(tmxMap.map.tileset.source).name;
+  const ts = path.parse(tmxMap.map.tileset.source).name;
   
-  return new MapFile(spr, sky, floorWidth, floorHeight, data, walls, props);
+  return new MapFile(ts, sky, floorWidth, floorHeight, data, walls, props);
 }
 
 function main()
@@ -126,7 +128,7 @@ function main()
   }
   
   const tmxPath = process.argv[2];
-  const mapPath = process.argv[3];
+  const mapPath = MAP_PATH + process.argv[3] + ".map";
   
   const mapFile = tmxToMap(tmxPath);
   
