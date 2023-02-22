@@ -96,18 +96,25 @@ export class Renderer {
     this.mapWalls = [];
     
     for (const wall of map.walls) {
-      let start = new Vector3(-0.5, 0.0, 0.0);
-      let end = new Vector3(+0.5, 0.0, 0.0);
-      
-      if (wall.tile & Map.FLIPPED_HORIZONTALLY_FLAG) {
-        const tmp = start;
-        start = end;
-        end = tmp;
-      }
+      let start;
+      let end;
       
       if (wall.tile & Map.FLIPPED_DIAGONALLY_FLAG) {
-        start.rotateZ(Math.PI / 2.0);
-        end.rotateZ(Math.PI / 2.0);
+        start = new Vector3(-0.5, -0.5, 0.0);
+        end = new Vector3(-0.5, +0.5, 0.0);
+        
+        if (wall.tile & Map.FLIPPED_HORIZONTALLY_FLAG) {
+          start.x = -start.x;
+          end.x = -end.x;
+        }
+      } else {
+        start = new Vector3(-0.5, -0.5, 0.0);
+        end = new Vector3(+0.5, -0.5, 0.0);
+        
+        if (wall.tile & Map.FLIPPED_VERTICALLY_FLAG) {
+          start.y = -start.y;
+          end.y = -end.y;
+        }
       }
       
       start.add(new Vector3(wall.xPos + 0.5, wall.yPos + 0.5, 0.0));
@@ -270,8 +277,8 @@ export class Renderer {
     let yPixel0 = yPixel00;
     let yPixel1 = yPixel01;
     
-    let xp0 = Math.floor(xPixel0);
-    let xp1 = Math.floor(xPixel1);
+    let xp0 = Math.ceil(xPixel0);
+    let xp1 = Math.ceil(xPixel1);
     
     if (xPixel0 < 0) {
       yPixel0 += -xPixel0 * yDelta0;
@@ -296,13 +303,14 @@ export class Renderer {
       const xt = Math.floor(xTex * wallTex.height);
       
       const yp0 = Math.floor(yPixel0);
-      const yp1 = Math.floor(yPixel1);
+      const yp1 = Math.ceil(yPixel1);
       
       const yTexelStep = 1.0 / (yPixel1 - yPixel0);
       
       let yTex = 0;
       for (let y = yp0; y < yp1; y++) {
         const yt = Math.floor(yTex * wallTex.height);
+        yTex += yTexelStep;
         
         const [ R, G, B, A ] = wallTex.getRGBA(xt, yt);
         
@@ -313,8 +321,6 @@ export class Renderer {
         }
         
         this.putRGBAShade(x, y, zPos, R, G, B, A);
-        
-        yTex += yTexelStep;
       }
       
       yPixel0 += yDelta0;
@@ -391,40 +397,12 @@ export class Renderer {
           const xTile = Math.floor(xPixel);
           const yTile = Math.floor(yPixel);
           
-          const floorTile = this.map.getTile(xTile, yTile) & 255;
-          const ceilTile = (this.map.getTile(xTile, yTile) >> 8) & 255;
+          const envTile = this.map.getTile(xTile, yTile);
           
-          if (ceilTile || y >= yPixel1) {
-            let spriteID;
-            if (y >= yPixel1)
-              spriteID = floorTile;
-            else
-              spriteID = ceilTile - 1;
-            
-            const tex = this.map.tileSet.spriteMap.getSprite(spriteID);
-            
-            let xTex = (xPixel - Math.floor(xPixel));
-            let yTex = (yPixel - Math.floor(yPixel));
-            
-            if (tile & Map.FLIPPED_DIAGONALLY_FLAG) {
-              const tmp = xTex;
-              xTex = yTex;
-              yTex = tmp;
-            }
-            
-            if (tile & Map.FLIPPED_HORIZONTALLY_FLAG)
-              xTex = 1.0 - xTex;
-            if (tile & Map.FLIPPED_VERTICALLY_FLAG)
-              yTex = 1.0 - yTex;
-            
-            const xt = Math.floor(xTex * tex.width);
-            const yt = Math.floor(yTex * tex.height);
-            
-            const [ R, G, B, A ] = tex.getRGBA(xt, yt);
-            
-            this.zBuffer[x + y * this.bitmap.width] = zDepth;
-            this.putRGBShade(x, y, zDepth, R, G, B);
-          } else if (this.mapSky) {
+          const floorTile = envTile & 255;
+          const ceilTile = (envTile >> 8) & 255;
+          
+          if (this.mapSky) {
             let xTex = Math.floor(x - this.camera.rot * this.bitmap.width / this.camera.fov);
             
             if (xTex < 0)
@@ -436,6 +414,38 @@ export class Renderer {
             
             this.zBuffer[x + y * this.bitmap.width] = 1000;
             this.putRGBAShade(x, y, zDepth, R, G, B, 255);
+          }
+          
+          if (ceilTile || y >= yPixel1) {
+            let spriteID;
+            if (y >= yPixel1)
+              spriteID = floorTile;
+            else
+              spriteID = ceilTile - 1;
+            
+            const tex = this.map.tileSet.spriteMap.getSprite(spriteID);
+            
+            let xTex = 1.0 - (xPixel - Math.floor(xPixel));
+            let yTex = (yPixel - Math.floor(yPixel));
+            
+            if (envTile & Map.FLIPPED_DIAGONALLY_FLAG) {
+              const tmp = xTex;
+              xTex = yTex;
+              yTex = tmp;
+            }
+            
+            if (envTile & Map.FLIPPED_HORIZONTALLY_FLAG)
+              xTex = 1.0 - xTex;
+            if (envTile & Map.FLIPPED_VERTICALLY_FLAG)
+              yTex = 1.0 - yTex;
+            
+            const xt = Math.floor(xTex * tex.width);
+            const yt = Math.floor(yTex * tex.height);
+            
+            const [ R, G, B, A ] = tex.getRGBA(xt, yt);
+            
+            this.zBuffer[x + y * this.bitmap.width] = zDepth;
+            this.putRGBAShade(x, y, zDepth, R, G, B, A);
           }
         }
       }
