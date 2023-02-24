@@ -48,7 +48,7 @@ export class Map {
     return this.tiles[x + y * this.width];
   }
   
-  getSolid(x, y)
+  isSolid(x, y)
   {
     return this.tileSet.getTile(this.getTile(x, y) & 255).solid;
   }
@@ -60,10 +60,10 @@ export class Map {
     const y0 = Math.floor(yPos - yBox);
     const y1 = Math.floor(yPos + yBox);
     
-    return this.getSolid(x0, y0)||
-    this.getSolid(x1, y0) ||
-    this.getSolid(x0, y1) ||
-    this.getSolid(x1, y1)
+    return this.isSolid(x0, y0)||
+    this.isSolid(x1, y0) ||
+    this.isSolid(x0, y1) ||
+    this.isSolid(x1, y1)
   }
   
   // Cast a ray from a position in a certain direction and return the first wall it hits
@@ -96,7 +96,7 @@ export class Map {
     }
     
     let side = false;
-    while (!this.getSolid(xMap, yMap)) {
+    while (!this.isSolid(xMap, yMap)) {
       if (xSideDist < ySideDist) {
         xSideDist += xDeltaDist;
         xMap += xStep;
