@@ -36,10 +36,10 @@ class TsFile {
 
 function getProperty(name, properties)
 {
-  const res = properties.find(x => x.property.name == name);
+  const res = properties.find(x => x.name == name);
   
   if (res)
-    return res.property.value;
+    return res.value;
   
   return null;
 }
@@ -61,7 +61,10 @@ function tsxToTs(tsxPath)
     const tiles = [].concat(tileset.tile);
     
     for (const tile of tiles) {
-      const properties = [].concat(tile.properties);
+      let properties = tile.properties.property;
+      if (!Array.isArray(properties))
+        properties = [ properties ];
+      
       const id = parseInt(tile.id) + 1;
       const solid = getProperty("solid", properties) == "true";
       
