@@ -98,7 +98,7 @@ function run(font)
 {
   const app = new App(font);
   
-  app.sceneLoad("sceneMenu");
+  app.sceneLoad("sceneGame");
   
   let prevTime = performance.now();
 
