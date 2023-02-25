@@ -26,7 +26,7 @@ export class Map {
     this.walls = walls;
     this.tiles = new Uint32Array(this.width * this.height);
     this.props = props;
-    this.voidTile = 0;
+    this.voidTile = 1;
   }
   
   getWalls()

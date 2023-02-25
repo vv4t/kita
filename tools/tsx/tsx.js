@@ -3,7 +3,7 @@ import path from "path";
 import { XMLParser } from "fast-xml-parser";
 
 const TS_PATH = "../../assets/ts/";
-const SPR_PATH= "../../assets/spr/";
+const SPR_PATH = "../../assets/spr/";
 
 class TsConfig {
   constructor(id, solid)
@@ -62,7 +62,7 @@ function tsxToTs(tsxPath)
     
     for (const tile of tiles) {
       const properties = [].concat(tile.properties);
-      const id = parseInt(tile.id);
+      const id = parseInt(tile.id) + 1;
       const solid = getProperty("solid", properties) == "true";
       
       tsConfig.push(new TsConfig(id, solid));

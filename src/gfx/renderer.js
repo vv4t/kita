@@ -342,7 +342,7 @@ export class Renderer {
       
       const rayHit = this.map.rayCast(this.camera.pos, new Vector3(xRayDir, yRayDir, 0.0));
       const tile = this.map.getTile(rayHit.xMap, rayHit.yMap);
-      const texWall = this.map.tileSet.spriteMap.getSprite(tile & 255);
+      const texWall = this.map.tileSet.spriteMap.getSprite((tile & 255) - 1);
 
       const wallDist = rayHit.dist;
 
@@ -418,7 +418,7 @@ export class Renderer {
           if (ceilTile || y >= yPixel1) {
             let spriteID;
             if (y >= yPixel1)
-              spriteID = floorTile;
+              spriteID = floorTile - 1;
             else
               spriteID = ceilTile - 1;
             

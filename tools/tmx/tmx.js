@@ -61,7 +61,7 @@ function tmxToMap(tmxPath)
   const sky = getProperty("sky", properties)
   
   const floorLayer = tmxMap.map.layer.find(x => x.name == "floor");
-  const floorData = floorLayer.data["#text"].replace(/\s/g, '').split(',').map((x) => (parseInt(x) - 1));
+  const floorData = floorLayer.data["#text"].replace(/\s/g, '').split(',').map((x) => (parseInt(x)));
   const floorWidth = parseInt(floorLayer.width);
   const floorHeight = parseInt(floorLayer.height);
   
