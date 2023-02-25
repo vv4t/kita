@@ -344,14 +344,13 @@ export class Renderer {
       const tile = this.map.getTile(rayHit.xMap, rayHit.yMap);
       const texWall = this.map.tileSet.spriteMap.getSprite(tile & 255);
 
-      let wallDist, xWall;
-      if (rayHit.side) {
-        wallDist = rayHit.xDist;
+      const wallDist = rayHit.dist;
+
+      let xWall;
+      if (rayHit.side)
         xWall = Math.abs(this.camera.pos.y + wallDist * yRayDir - rayHit.yMap);
-      } else {
-        wallDist = rayHit.yDist;
+      else
         xWall = Math.abs(this.camera.pos.x + wallDist * xRayDir - rayHit.xMap);
-      }
       
       const wallStart = (-0.5 + this.camera.pos.z) / (this.camera.fov * wallDist) * this.bitmap.width;
       const wallEnd = (+0.5 + this.camera.pos.z) / (this.camera.fov * wallDist) * this.bitmap.width;

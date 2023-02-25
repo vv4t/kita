@@ -3,11 +3,10 @@ import { fileLoad } from "../util/file.js";
 import { tileSetLoad } from "./tileSet.js";
 
 class RayHit {
-  constructor(side, xDist, yDist, xMap, yMap)
+  constructor(side, dist, xMap, yMap)
   {
     this.side = side;
-    this.xDist = xDist;
-    this.yDist = yDist;
+    this.dist = dist;
     this.xMap = xMap;
     this.yMap = yMap;
   }
@@ -108,10 +107,10 @@ export class Map {
       }
     }
     
-    const xDist = xSideDist - xDeltaDist;
-    const yDist = ySideDist - yDeltaDist;
-    
-    return new RayHit(side, xDist, yDist, xMap, yMap);
+    if (side)
+      return new RayHit(side, xSideDist - xDeltaDist, xMap, yMap);
+    else
+      return new RayHit(side, ySideDist - yDeltaDist, xMap, yMap);
   }
 };
 
