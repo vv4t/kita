@@ -26,8 +26,7 @@ export class Player extends Entity {
       moveDir.normalize();
       moveDir.mulf(this.moveSpeed * delta);
       
-      if (map)
-        this.clipMoveDir(moveDir, map);
+      this.clipMoveDir(moveDir, map);
       
       this.pos.add(moveDir);
       

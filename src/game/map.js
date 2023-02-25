@@ -51,6 +51,20 @@ export class Map {
   {
     return this.tileSet.getTile(this.getTile(x, y) & 255).solid;
   }
+
+  isCorner(x, y) {
+    const occupiedX = (
+        this.isSolid(x+1, y) && 
+        this.isSolid(x, y) && 
+        this.isSolid(x-1, y)
+    );
+    const occupiedY = (
+        this.isSolid(x, y+1) && 
+        this.isSolid(x, y) && 
+        this.isSolid(x, y-1)
+    );
+    return !(occupiedX || occupiedY);
+  }
   
   collide(xPos, yPos, xBox, yBox)
   {
@@ -59,10 +73,12 @@ export class Map {
     const y0 = Math.floor(yPos - yBox);
     const y1 = Math.floor(yPos + yBox);
     
-    return this.isSolid(x0, y0)||
-    this.isSolid(x1, y0) ||
-    this.isSolid(x0, y1) ||
-    this.isSolid(x1, y1)
+    return (
+      this.isSolid(x0, y0) ||
+      this.isSolid(x1, y0) ||
+      this.isSolid(x0, y1) ||
+      this.isSolid(x1, y1)
+    )
   }
   
   // Cast a ray from a position in a certain direction and return the first wall it hits
@@ -112,7 +128,7 @@ export class Map {
     else
       return new RayHit(side, ySideDist - yDeltaDist, xMap, yMap);
   }
-};
+}
 
 export function mapLoad(mapPath, onLoad)
 {

@@ -17,6 +17,7 @@ export class Game {
   
   update(delta, userCommand)
   {
+    if (!this.map) return;
     for (const entity of this.entities) {
       entity.update(delta, this, userCommand)
     }

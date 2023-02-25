@@ -83,6 +83,7 @@ export class Vector3 {
     } else {
       this.mulf(1.0 / vecLength);
     }
+    return this;
   }
   
   length()
@@ -123,4 +124,9 @@ export function clamp(value, rangeMin, rangeMax)
 export function rand()
 {
   return Math.random() - 0.5;
+}
+
+export function euclidean_distance(pos1, pos2) 
+{
+  return Math.sqrt((pos2[0]-pos1[0])**2 + (pos2[1]-pos1[1])**2)
 }
