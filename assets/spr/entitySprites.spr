@@ -1,9 +1,9 @@
 {
   "src": "entitySprites",
-  "imgWidth": 16,
-  "imgHeight": 16,
+  "imgWidth": 32,
+  "imgHeight": 32,
   "columns": 2,
-  "sprWidth": 8,
-  "sprHeight": 8,
+  "sprWidth": 16,
+  "sprHeight": 16,
   "sprCount": 4
 }
