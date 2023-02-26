@@ -11,7 +11,7 @@ export class Zombie extends Entity {
     constructor(pos) {
         super(pos, 0, 0, 0);
         
-        this.speed = 2
+        this.speed = 3
 
         const animationStates =  {
             "idle" : new Animation(0, 2, 600),
@@ -27,17 +27,14 @@ export class Zombie extends Entity {
     update(delta, game, userCommand) {
         if (this.pathfindingCounter % 30 == 0) {
             this.path = this.thetaStar(game.player.pos, game.map);
-            for (const node of this.path) {
-                console.log(node);
-            }
         }
         this.pathfindingCounter++;
         
         if (this.path.length != 0) {
             const [nodeX, nodeY] = this.path[0]
             const moveDir = new Vector3(
-                nodeX - this.pos.x,
-                nodeY - this.pos.y,
+                (nodeX + 0.5) - this.pos.x,
+                (nodeY + 0.5) - this.pos.y,
                 0
             )  
             moveDir.normalize()
@@ -59,7 +56,7 @@ export class Zombie extends Entity {
     }
 
     lineOfSight(pos1, pos2, map) {
-        const posVector = new Vector3(pos1[0], pos1[1], 0);
+        const posVector = new Vector3(pos1[0] + 0.5, pos1[1]  + 0.5, 0);
         const dirVector = new Vector3(pos2[0]-pos1[0], pos2[1]-pos1[1], 0).normalize();
         const rayHit = map.rayCast(posVector, dirVector);
         return rayHit.dist >= euclidean_distance(pos1, pos2);
@@ -79,8 +76,8 @@ export class Zombie extends Entity {
             Math.floor(this.pos.y)
         ];
         const goal = [
-            goalVec.x,
-            goalVec.y
+            Math.floor(goalVec.x),
+            Math.floor(goalVec.y)
         ]
 
         // priority queue means nodes are evaluated from best to worst cost
