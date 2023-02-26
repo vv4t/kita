@@ -16,8 +16,6 @@ export class GUIRenderer {
     if (!gui.isActive)
       return;
     
-    this.drawMouse(gui.mousePos);
-    
     for (const element of gui.elements) {
       switch (element.constructor.name) {
       case "GUILabel":
@@ -28,13 +26,15 @@ export class GUIRenderer {
         break;
       }
     }
+    
+    this.drawMouse(gui.mousePos);
   }
   
   drawMouse(mousePos)
   {
     this.drawRect(
-      Math.floor(mousePos.x) - 1,
-      Math.floor(mousePos.y) - 1,
+      Math.floor(mousePos.x),
+      Math.floor(mousePos.y),
       2, 2,
       [ 255, 255, 255, 255 ]);
   }

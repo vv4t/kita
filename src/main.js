@@ -1,3 +1,4 @@
+import { assetsLoad } from "./assets.js";
 import { Game } from "./game/game.js";
 import { Input } from "./input.js";
 import { GUI } from "./gui/gui.js";
@@ -5,19 +6,18 @@ import { GUIRenderer } from "./gfx/GUIRenderer.js";
 import { Bitmap } from "./gfx/bitmap.js";
 import { Renderer } from "./gfx/renderer.js";
 import { Screen } from "./screen.js";
-import { spriteMapLoad } from "./gfx/spriteMap.js";
 import { SceneGame } from "./scene/sceneGame.js";
 import { SceneMenu } from "./scene/sceneMenu.js";
 
 class App {
-  constructor(font)
+  constructor(assets)
   {
     this.screen = new Screen(document.getElementById("canvas"));
     this.bitmap = new Bitmap(256, 144);
     this.input = new Input();
     
     this.game = new Game();
-    this.gui = new GUI(this.bitmap, font);
+    this.gui = new GUI(this.bitmap, assets.font);
     
     this.renderer = new Renderer(this.bitmap);
     this.guiRenderer = new GUIRenderer(this.bitmap);
@@ -115,4 +115,4 @@ function run(font)
   window.requestAnimationFrame(animate);
 };
 
-spriteMapLoad("font", (font) => run(font) );
+assetsLoad(run);
