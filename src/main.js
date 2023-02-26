@@ -20,7 +20,7 @@ class App {
     this.gui = new GUI(this.bitmap, font);
     
     this.renderer = new Renderer(this.bitmap);
-    this.guiRenderer = new GUIRenderer(this.bitmap, font);
+    this.guiRenderer = new GUIRenderer(this.bitmap);
     
     this.initScreen();
     this.initInput();
@@ -98,7 +98,7 @@ function run(font)
 {
   const app = new App(font);
   
-  app.sceneLoad("sceneGame");
+  app.sceneLoad("sceneMenu");
   
   let prevTime = performance.now();
 

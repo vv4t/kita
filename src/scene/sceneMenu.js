@@ -25,21 +25,25 @@ export class SceneMenu {
   
   initGUI()
   {
-    const lblKita = this.app.gui.createLabel("KITA", new Vector2(10, 10));
+    const labelKita = this.app.gui.addLabel("kita", new Vector2(10, 10));
     
-    const btnPlay = this.app.gui.createButton(
-      new Vector2(10, lblKita.offset.y + lblKita.size.y + 1),
-      new Vector2(64, 9)
+    const buttonPlay = this.app.gui.addButton(
+      "play",
+      () => {
+        this.app.sceneLoad("sceneGame");
+      },
+      new Vector2(10, labelKita.offset.y + labelKita.size.y + 1),
+      new Vector2(64, 9),
     );
     
-    btnPlay.addChild(this.app.gui.createLabel("play", new Vector2(2, 2)));
-    
-    btnPlay.addEventListener("onClick", () => {
-      this.app.sceneLoad("sceneGame");
-    });
-    
-    this.app.gui.addElement(lblKita);
-    this.app.gui.addElement(btnPlay);
+    const buttonCredits = this.app.gui.addButton(
+      "credits",
+      () => {
+        this.app.sceneLoad("sceneGame");
+      },
+      new Vector2(10, buttonPlay.offset.y + buttonPlay.size.y + 1),
+      new Vector2(64, 9),
+    );
   }
   
   unload()

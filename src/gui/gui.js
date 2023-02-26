@@ -20,28 +20,24 @@ export class GUI {
     this.elements = [];
   }
   
-  createButton(offset, size)
+  addButton(text, onClick, offset, size)
   {
-    return new GUIButton(offset, size);
+    const newButton = new GUIButton(text, this.font, onClick, offset, size);
+    this.elements.push(newButton);
+    return newButton;
   }
   
-  createLabel(text, offset)
+  addLabel(text, offset)
   {
-    return new GUILabel(text, this.font, offset);
-  }
-  
-  addElement(element)
-  {
-    this.elements.push(element);
+    const newLabel = new GUILabel(text, this.font, offset);
+    this.elements.push(newLabel);
+    return newLabel;
   }
   
   keyEvent(key, action)
   {
     if (!this.isActive)
       return false;
-    
-    for (const element of this.elements)
-      element.triggerEvent("keyEvent", (_self) => _self.isFocused, key, action);
   }
   
   mouseEvent(button, action)
@@ -50,14 +46,8 @@ export class GUI {
       return;
     
     for (const element of this.elements) {
-      element.isFocused = false;
-      element.triggerEvent(
-        "mouseEvent",
-        (_self) => {
-          return boxBoundPos(this.mousePos, _self.offset, _self.size);
-        },
-        button, action
-      );
+      if (boxBoundsPos(this.mousePos, element.offset, element.size))
+        element.mouseEvent(button, action);
     }
   }
   
@@ -67,22 +57,17 @@ export class GUI {
       return;
     
     for (const element of this.elements) {
-      element.triggerEvent(
-        "mouseMove",
-        (_self) => {
-          const inBound = boxBoundPos(this.mousePos, _self.offset, _self.size);
-          
-          if (!_self.inBound && inBound)
-            element.triggerEvent("mouseEnter", null);
-          else if (_self.inBound && !inBound)
-            element.triggerEvent("mouseExit", null);
-          
-          _self.inBound = inBound;
-          
-          return inBound;
-        },
-        xMovement, yMovement
-      );
+      const inBound = boxBoundsPos(this.mousePos, element.offset, element.size);
+      
+      if (inBound && !element.inBound) {
+        element.mouseEnter();
+        element.inBound = true;
+      }
+      
+      if (!inBound && element.inBound) {
+        element.mouseExit();
+        element.inBound = false;
+      }
     }
     
     const newPos = this.mousePos.copy().add(new Vector2(xMovement, yMovement).mulf(this.mouseSensitivity));
@@ -100,7 +85,7 @@ export class GUI {
   }
 };
 
-function boxBoundPos(pos, boxPos, boxSize)
+function boxBoundsPos(pos, boxPos, boxSize)
 {
   return pos.x >= boxPos.x
   && pos.y >= boxPos.y

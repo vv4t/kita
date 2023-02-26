@@ -1,34 +1,41 @@
 import { GUIElement } from "./guiElement.js";
-
-export class GUIButtonState {
-  static RELEASE = 0;
-  static HOVER = 1;
-  static HOLD = 2;
-};
+import { Vector2, } from "../util/math.js";
 
 export class GUIButton extends GUIElement {
-  constructor(offset, size)
+  constructor(text, font, onClick, offset, size)
   {
-    super(offset, size);
+    super(offset, size, [255, 255, 255, 255]);
     
-    this.state = GUIButtonState.RELEASE;
+    this.text = text;
+    this.font = font;
+    this.onClick = onClick;
+    this.clickDown = false;
     
-    this.addEventListener("mouseEnter", () => {
-      this.state = GUIButtonState.HOVER;
-    });
+    const textWidth = text.length * (font.spriteWidth + 1);
+    const textHeight = font.spriteHeight;
     
-    this.addEventListener("mouseExit", () => {
-      this.state = GUIButtonState.RELEASE;
-    });
-    
-    this.addEventListener("mouseEvent", (button, action) => {
-      if (action) {
-        this.state = GUIButtonState.HOLD;
-      } else {
-        this.state = GUIButtonState.HOVER;
-        this.triggerEvent("onClick", null, button);
-      }
-    });
+    this.textOffset = size.copy().sub(new Vector2(textWidth, textHeight)).mulf(0.5);
+  }
+  
+  mouseEvent(button, action)
+  {
+    if (!this.clickDown && action)
+      this.clickDown = true;
+      
+    if (this.clickDown && !action) {
+      this.clickDown = false;
+      this.onClick();
+    }
+  }
+  
+  mouseEnter()
+  {
+    this.color = [150, 150, 150, 255];
+  }
+  
+  mouseExit()
+  {
+    this.color = [255, 255, 255, 255];
   }
 };
 

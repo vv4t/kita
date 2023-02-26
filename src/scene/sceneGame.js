@@ -32,31 +32,16 @@ export class SceneGame extends BaseScene {
   
   initGUI()
   {
-    const btnContinue = this.app.gui.createButton(
-      new Vector2(10, 10),
-      new Vector2(64, 9)
+    const labelKita = this.app.gui.addLabel("kita", new Vector2(10, 10));
+    
+    const buttonQuit = this.app.gui.addButton(
+      "quit",
+      () => {
+        this.app.sceneLoad("sceneMenu");
+      },
+      new Vector2(10, labelKita.offset.y + labelKita.size.y + 1),
+      new Vector2(64, 9),
     );
-    
-    btnContinue.addChild(this.app.gui.createLabel("continue", new Vector2(2, 2)));
-    
-    const btnQuit = this.app.gui.createButton (
-      new Vector2(10, btnContinue.offset.y + btnContinue.size.y + 1),
-      new Vector2(64, 9)
-    );
-    
-    btnQuit.addChild(this.app.gui.createLabel("quit", new Vector2(2, 2)));
-    
-    btnContinue.addEventListener("onClick", () => {
-      this.app.gui.isActive = false;
-      this.app.input.startAction();
-    });
-    
-    btnQuit.addEventListener("onClick", () => {
-      this.app.sceneLoad("sceneMenu");
-    });
-    
-    this.app.gui.addElement(btnContinue);
-    this.app.gui.addElement(btnQuit);
   }
   
   unload()

@@ -1,5 +1,4 @@
 import { clamp, Vector2 } from "../util/math.js";
-import { GUIButtonState } from "../gui/guiButton.js";
 
 const ALPHA_BEGIN = "a".charCodeAt(0);
 const ALPHA_END = "z".charCodeAt(0);
@@ -7,10 +6,9 @@ const NUM_BEGIN = "0".charCodeAt(0);
 const NUM_END = "9".charCodeAt(0);
 
 export class GUIRenderer {
-  constructor(bitmap, fontSpriteMap)
+  constructor(bitmap)
   {
     this.bitmap = bitmap;
-    this.fontSpriteMap = fontSpriteMap;
   }
   
   render(gui)
@@ -20,8 +18,16 @@ export class GUIRenderer {
     
     this.drawMouse(gui.mousePos);
     
-    for (const element of gui.elements)
-      this.drawElement(new Vector2(0, 0), element);
+    for (const element of gui.elements) {
+      switch (element.constructor.name) {
+      case "GUILabel":
+        this.drawLabel(element);
+        break;
+      case "GUIButton":
+        this.drawButton(element);
+        break;
+      }
+    }
   }
   
   drawMouse(mousePos)
@@ -33,53 +39,31 @@ export class GUIRenderer {
       [ 255, 255, 255, 255 ]);
   }
   
-  drawElement(offset, element)
-  {
-    switch (element.constructor.name) {
-    case "GUILabel":
-      this.drawLabel(offset, element);
-      break;
-    case "GUIButton":
-      this.drawButton(offset, element);
-      break;
-    }
-    
-    const elemOffset = offset.copy().add(element.offset);
-    
-    for (const child of element.children)
-      this.drawElement(elemOffset, child);
-  }
-  
-  drawButton(offset, element)
-  {
-    let color;
-    switch (element.state) {
-    case GUIButtonState.RELEASE:
-      color = [ 255, 255, 255, 255 ];
-      break;
-    case GUIButtonState.HOVER:
-      color = [ 255, 255, 255, 128 ];
-      break;
-    case GUIButtonState.HOLD:
-      color = [ 100, 100, 100, 128 ];
-      break;
-    }
-    
-    this.drawRect(
-      Math.floor(offset.x + element.offset.x),
-      Math.floor(offset.y + element.offset.y),
-      Math.floor(element.size.x),
-      Math.floor(element.size.y),
-      color);
-  }
-  
-  drawLabel(offset, element)
+  drawButton(element)
   {
     this.drawText(
       element.text,
-      Math.floor(offset.x + element.offset.x),
-      Math.floor(offset.y + element.offset.y),
-      [ 255, 255, 255, 255 ]);
+      element.font,
+      Math.floor(element.offset.x + element.textOffset.x),
+      Math.floor(element.offset.y + element.textOffset.y),
+      element.color);
+    
+    this.drawRect(
+      Math.floor(element.offset.x),
+      Math.floor(element.offset.y),
+      Math.floor(element.size.x),
+      Math.floor(element.size.y),
+      element.color);
+  }
+  
+  drawLabel(element)
+  {
+    this.drawText(
+      element.text,
+      element.font,
+      Math.floor(element.offset.x),
+      Math.floor(element.offset.y),
+      element.color);
   }
   
   drawRect(xStart, yStart, width, height, color)
@@ -98,11 +82,8 @@ export class GUIRenderer {
     }
   }
   
-  drawText(text, xOffset, yOffset, color)
+  drawText(text, font, xOffset, yOffset, color)
   {
-    if (!this.fontSpriteMap)
-      return;
-    
     const lowerText = text.toLowerCase();
     
     for (let i = 0; i < lowerText.length; i++) {
@@ -123,7 +104,7 @@ export class GUIRenderer {
       else if (lowerText[i] == " ")
         continue;
       
-      const texChar = this.fontSpriteMap.getSprite(spriteID);
+      const texChar = font.getSprite(spriteID);
       this.drawTextureShade(texChar, i * (texChar.width + 1) + xOffset, yOffset, color);
     }
   }
