@@ -14,11 +14,9 @@ class TsConfig {
 };
 
 class SprFile {
-  constructor(src, imgWidth, imgHeight, columns, sprWidth, sprHeight, sprCount)
+  constructor(src, columns, sprWidth, sprHeight, sprCount)
   {
     this.src = src;
-    this.imgWidth = imgWidth;
-    this.imgHeight = imgHeight;
     this.columns = columns;
     this.sprWidth = sprWidth;
     this.sprHeight = sprHeight;

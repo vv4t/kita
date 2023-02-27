@@ -1,7 +1,5 @@
 {
   "src": "entities",
-  "imgWidth": 32,
-  "imgHeight": 32,
   "columns": 2,
   "sprWidth": 16,
   "sprHeight": 16,
