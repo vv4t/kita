@@ -23,7 +23,7 @@ class Camera {
 };
 
 export class GameRenderer extends Renderer3D {
-  constructor(bitmap)
+  constructor(bitmap, entitySpriteMap)
   {
     super(bitmap);
     
@@ -33,10 +33,7 @@ export class GameRenderer extends Renderer3D {
     this.mapSky = null;
     this.mapWalls = [];
     
-    this.entitySpriteMap = null;
-    spriteMapLoad("entitySprites", (spriteMap) => {
-      this.entitySpriteMap = spriteMap
-    })
+    this.entitySpriteMap = entitySpriteMap;
   }
   
   render(game)

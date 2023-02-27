@@ -23,7 +23,7 @@ class App {
     this.game = new Game();
     this.gui = new GUI(this.bitmap, assets.font);
     
-    this.gameRenderer = new GameRenderer(this.bitmap);
+    this.gameRenderer = new GameRenderer(this.bitmap, assets.entities);
     this.guiRenderer = new GUIRenderer(this.bitmap);
     
     this.initScreen();
