@@ -1,13 +1,17 @@
 import { assetsLoad } from "./assets.js";
-import { Game } from "./game/game.js";
+
 import { Input } from "./input.js";
-import { GUI } from "./gui/gui.js";
-import { GUIRenderer } from "./gfx/GUIRenderer.js";
 import { Bitmap } from "./gfx/bitmap.js";
-import { Renderer } from "./gfx/renderer.js";
 import { Screen } from "./screen.js";
+
+import { Game } from "./game/game.js";
+import { GUI } from "./gui/gui.js";
+
 import { SceneGame } from "./scene/sceneGame.js";
 import { SceneMenu } from "./scene/sceneMenu.js";
+
+import { GUIRenderer } from "./gfx/guiRenderer.js";
+import { GameRenderer } from "./gfx/gameRenderer.js";
 
 class App {
   constructor(assets)
@@ -19,7 +23,7 @@ class App {
     this.game = new Game();
     this.gui = new GUI(this.bitmap, assets.font);
     
-    this.renderer = new Renderer(this.bitmap);
+    this.gameRenderer = new GameRenderer(this.bitmap);
     this.guiRenderer = new GUIRenderer(this.bitmap);
     
     this.initScreen();
@@ -37,7 +41,7 @@ class App {
   {
     this.sceneMap[this.sceneNow].update(deltaTime);
     
-    this.renderer.render(this.game);
+    this.gameRenderer.render(this.game);
     this.guiRenderer.render(this.gui);
     
     this.bitmap.swap();
@@ -61,7 +65,7 @@ class App {
   {
     this.game.addEventListener("mapLoad", (map) => {
       this.sceneMap[this.sceneNow].mapLoad(map);
-      this.renderer.mapLoad(map);
+      this.gameRenderer.mapLoad(map);
     });
   }
   
