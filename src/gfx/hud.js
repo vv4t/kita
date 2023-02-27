@@ -7,6 +7,8 @@ export class HUD extends Renderer2D {
     this.font = font;
     this.hudSpriteMap = hudSpriteMap;
     this.isVisible = false;
+    
+    this.oldRot = 0.0;
   }
   
   render(game)
@@ -16,8 +18,21 @@ export class HUD extends Renderer2D {
     
     this.drawTexture(
       this.hudSpriteMap.getSprite(1),
-      this.bitmap.width / 2 - 8,
-      this.bitmap.height / 2 - 8
+      (this.bitmap.width - this.hudSpriteMap.spriteWidth) / 2,
+      (this.bitmap.height - this.hudSpriteMap.spriteHeight) / 2
+    );
+    
+    this.oldRot += (game.player.rot - this.oldRot) * 0.1;
+    
+    let weapBob = 0;
+    if (game.player.isMoving)
+      weapBob = -Math.cos(game.time * 5) * -Math.cos(game.time * 5) * 9;
+    
+    this.drawTexture(
+      this.hudSpriteMap.getSprite(0),
+      150 + Math.floor((game.player.rot - this.oldRot) * 10),
+      this.bitmap.height - 4 * this.hudSpriteMap.spriteHeight + Math.floor(weapBob),
+      4
     );
     
     this.drawText(

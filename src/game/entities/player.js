@@ -9,6 +9,8 @@ export class Player extends Entity {
     this.moveSpeed = 4.0;
     this.rot = rot;
     this.time = 0.0;
+    
+    this.isMoving = false;
   }
   
   update(delta, game, userCommand) {
@@ -31,8 +33,11 @@ export class Player extends Entity {
       this.pos.add(moveDir);
       
       this.pos.z = 0.1 + Math.cos(this.time * 10) * 0.03;
+      
+      this.isMoving = true;
     } else {
       this.pos.z = 0.1;
+      this.isMoving = false;
     }
   }
 };

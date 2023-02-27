@@ -7,6 +7,8 @@ export class Game {
   {
     this.map = null;
     
+    this.time = 0.0;
+    
     this.entities = [];
     this.player = new Player(new Vector3(3.0, 3.0, 0.2), 0.0);
     this.entities.push(this.player);
@@ -17,7 +19,11 @@ export class Game {
   
   update(delta, userCommand)
   {
-    if (!this.map) return;
+    if (!this.map)
+      return;
+    
+    this.time += delta;
+    
     for (const entity of this.entities) {
       entity.update(delta, this, userCommand)
     }

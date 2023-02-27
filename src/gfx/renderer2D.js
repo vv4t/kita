@@ -69,16 +69,20 @@ export class Renderer2D {
     }
   }
   
-  drawTexture(texture, xOffset, yOffset)
+  drawTexture(texture, xOffset, yOffset, size=1)
   {
     for (let y = 0; y < texture.height; y++) {
-      const yPixel = yOffset + y;
+      for (let yp = 0; yp < size; yp++) {
+        const yPixel = yOffset + y * size + yp;
       
-      for (let x = 0; x < texture.width; x++) {
-        const xPixel = xOffset + x;
-        
-        const [ R, G, B, A ] = texture.getRGBA(x, y);
-        this.putRGBA(xPixel, yPixel, R, G, B, A);
+        for (let x = 0; x < texture.width; x++) {
+          for (let xp = 0; xp < size; xp++) {
+            const xPixel = xOffset + x * size + xp;
+            
+            const [ R, G, B, A ] = texture.getRGBA(x, y);
+            this.putRGBA(xPixel, yPixel, R, G, B, A);
+          }
+        }
       }
     }
   }
