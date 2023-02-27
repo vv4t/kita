@@ -1,5 +1,5 @@
 {
-  "src": "entities",
+  "src": "hud",
   "imgWidth": 32,
   "imgHeight": 32,
   "columns": 2,

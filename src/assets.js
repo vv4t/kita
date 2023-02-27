@@ -8,6 +8,9 @@ export async function assetsLoad(onLoaded)
     }),
     "entities": await new Promise((resolve) => {
       spriteMapLoad("entities", (entitySpriteMap) => resolve(entitySpriteMap));
+    }),
+    "hud": await new Promise((resolve) => {
+      spriteMapLoad("hud", (hudSpriteMap) => resolve(hudSpriteMap));
     })
   };
   

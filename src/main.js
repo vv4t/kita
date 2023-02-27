@@ -10,6 +10,7 @@ import { GUI } from "./gui/gui.js";
 import { SceneGame } from "./scene/sceneGame.js";
 import { SceneMenu } from "./scene/sceneMenu.js";
 
+import { HUD } from "./gfx/hud.js";
 import { GUIRenderer } from "./gfx/guiRenderer.js";
 import { GameRenderer } from "./gfx/gameRenderer.js";
 
@@ -23,6 +24,7 @@ class App {
     this.game = new Game();
     this.gui = new GUI(this.bitmap, assets.font);
     
+    this.hud = new HUD(this.bitmap, assets.hud, assets.font);
     this.gameRenderer = new GameRenderer(this.bitmap, assets.entities);
     this.guiRenderer = new GUIRenderer(this.bitmap);
     
@@ -42,6 +44,7 @@ class App {
     this.sceneMap[this.sceneNow].update(deltaTime);
     
     this.gameRenderer.render(this.game);
+    this.hud.render(this.game);
     this.guiRenderer.render(this.gui);
     
     this.bitmap.swap();

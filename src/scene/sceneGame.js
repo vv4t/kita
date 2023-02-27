@@ -10,10 +10,12 @@ export class SceneGame extends BaseScene {
   
   load()
   {
+    this.app.hud.isVisible = true;
     this.app.gui.isActive = false;
     this.app.input.startAction();
     
     this.app.input.setBind("pause_menu", () => {
+      this.app.hud.isVisible = false;
       this.app.gui.isActive = true;
       this.app.input.stopAction();
     });

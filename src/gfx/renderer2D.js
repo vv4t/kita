@@ -39,7 +39,8 @@ export class Renderer2D {
       if (charASCII >= ALPHA_BEGIN && charASCII <= ALPHA_END)
         spriteID = charASCII - ALPHA_BEGIN;
       else if (charASCII >= NUM_BEGIN && charASCII <= NUM_END)
-        spriteID = 25 + charASCII - NUM_BEGIN;
+        spriteID = 26 + charASCII - NUM_BEGIN;
+      
       else if (lowerText[i] == ".")
         spriteID = 36;
       else if (lowerText[i] == "?")

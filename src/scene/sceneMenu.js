@@ -12,6 +12,7 @@ export class SceneMenu {
   {
     this.app.input.stopAction();
     this.app.gui.isActive = true;
+    this.app.hud.isVisible = false;
     
     this.initGUI();
     
