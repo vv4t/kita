@@ -12,7 +12,7 @@ export class Renderer3D {
     this.zNear = 0.1;
     this.zBuffer = new Float32Array(this.bitmap.width * this.bitmap.height);
     
-    this.fogColor = [ 10, 10, 40 ];
+    this.fogColor = [ 20, 10, 10 ];
   }
   
   renderSprite(spriteTex, spritePos)

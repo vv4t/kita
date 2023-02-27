@@ -14,8 +14,8 @@ export class Zombie extends Entity {
         this.speed = 3
 
         const animationStates =  {
-            "idle" : new Animation(0, 2, 600),
-            "aggro" : new Animation(2, 2, 200)
+            "idle" : new Animation(0, 2, 300),
+            "aggro" : new Animation(2, 2, 150)
         } 
         this.animation = new AnimationEngine("idle", animationStates)
     
@@ -46,7 +46,7 @@ export class Zombie extends Entity {
 
         //some example logic to demonstrate animation states
         const distanceFromPlayer = this.pos.copy().sub(game.player.pos).length()
-        if (distanceFromPlayer < 2) {
+        if (distanceFromPlayer < 4) {
             this.animation.state = "aggro"
         } else {
             this.animation.state = "idle"
