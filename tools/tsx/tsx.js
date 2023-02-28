@@ -75,7 +75,7 @@ function tsxToTs(tsxPath)
   const sprPath = SPR_PATH + src + ".spr";
   const sprFile = new SprFile(
     src,
-    parseInt(tileset.image.width), parseInt(tileset.image.height), parseInt(tileset.columns),
+    parseInt(tileset.columns),
     parseInt(tileset.tilewidth), parseInt(tileset.tileheight),
     parseInt(tileset.tilecount)
   );
