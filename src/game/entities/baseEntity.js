@@ -23,14 +23,14 @@ export class Entity {
         const newPosY = this.pos.y + moveDir.y;
         
         if (map.collide(newPosX, newPosY, this.xBox, this.yBox)) {
-        if (!map.collide(oldPosX, newPosY, this.xBox, this.yBox))
-            moveDir.x = 0.0;
-        else if (!map.collide(newPosX, oldPosY, this.xBox, this.yBox))
-            moveDir.y = 0.0;
-        else {
-            moveDir.x = 0.0;
-            moveDir.y = 0.0;
-        }
+            if (!map.collide(oldPosX, newPosY, this.xBox, this.yBox))
+                moveDir.x = 0.0;
+            else if (!map.collide(newPosX, oldPosY, this.xBox, this.yBox))
+                moveDir.y = 0.0;
+            else {
+                moveDir.x = 0.0;
+                moveDir.y = 0.0;
+            }
         }
     }
 }
