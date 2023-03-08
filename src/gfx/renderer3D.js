@@ -224,7 +224,7 @@ export class Renderer3D {
       const xRayDir = xCam * cosDir - sinDir;
       const yRayDir = xCam * sinDir + cosDir;
       
-      const rayHit = this.map.rayCast(this.camera.pos, new Vector3(xRayDir, yRayDir, 0.0));
+      const rayHit = this.map.rayCast(this.camera.pos, new Vector3(xRayDir, yRayDir, 0.0), TileSet.BLOCK_FLAG);
       const tile = this.map.getTile(rayHit.xMap, rayHit.yMap);
       const texWall = this.map.tileSet.spriteMap.getSprite((tile & 255) - 1);
 

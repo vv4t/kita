@@ -4,6 +4,7 @@ import { includesArray } from "../../util/includesArray.js";
 import { PriorityQueue } from "../../util/priorityQueue.js";
 import { euclidean_distance, Vector3 } from "../../util/math.js";
 import { AnimationEngine, Animation } from "../../gfx/animation.js";
+import { TileSet } from "../tileSet.js";
 
 export class Zombie extends Entity {
     static nodes = []
@@ -58,7 +59,7 @@ export class Zombie extends Entity {
     lineOfSight(pos1, pos2, map) {
         const posVector = new Vector3(pos1[0] + 0.5, pos1[1]  + 0.5, 0);
         const dirVector = new Vector3(pos2[0]-pos1[0], pos2[1]-pos1[1], 0).normalize();
-        const rayHit = map.rayCast(posVector, dirVector);
+        const rayHit = map.rayCast(posVector, dirVector, TileSet.SOLID_FLAG);
         return rayHit.dist >= euclidean_distance(pos1, pos2);
     }
 

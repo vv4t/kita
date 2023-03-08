@@ -47,12 +47,12 @@ export class Map {
   
   isSolid(x, y)
   {
-    return (this.getTile(x, y) & TileSet.SOLID_FLAG) > 0;
+    return (this.getTile(x, y) & TileSet.SOLID_FLAG) != 0;
   }
   
   isBlock(x, y)
   {
-    return (this.getTile(x, y) & TileSet.BLOCK_FLAG) > 0;
+    return (this.getTile(x, y) & TileSet.BLOCK_FLAG) != 0;
   }
 
   isCorner(x, y) {
@@ -86,7 +86,7 @@ export class Map {
   
   // Cast a ray from a position in a certain direction and return the first wall it hits
   // TODO: some sort of distance limiter
-  rayCast(rayPos, rayDir)
+  rayCast(rayPos, rayDir, hitMask)
   {
     const xDeltaDist = Math.abs(1.0 / rayDir.x);
     const yDeltaDist = Math.abs(1.0 / rayDir.y);
@@ -114,7 +114,7 @@ export class Map {
     }
     
     let side = false;
-    while (!this.isBlock(xMap, yMap)) {
+    while ((this.getTile(xMap, yMap) & hitMask) == 0) {
       if (xSideDist < ySideDist) {
         xSideDist += xDeltaDist;
         xMap += xStep;
