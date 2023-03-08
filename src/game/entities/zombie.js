@@ -9,7 +9,7 @@ export class Zombie extends Entity {
     static nodes = []
     
     constructor(pos) {
-        super(pos, 0, 0, 0);
+        super(pos, new Vector3(0.1, 0.1, 1.0), 0);
         
         this.speed = 3
 

@@ -4,7 +4,7 @@ import { Entity } from "./baseEntity.js";
 export class Player extends Entity {
   constructor(pos, rot)
   {
-    super(pos, 0.1, 0.1, -1); //arbitary spriteID -1 indicates no sprite !! mayb put in a constant or something
+    super(pos, new Vector3(0.1, 0.1, 1.0), -1); // arbitary spriteID -1 indicates no sprite !! mayb put in a constant or something
 
     this.moveSpeed = 4.0;
     this.rot = rot;

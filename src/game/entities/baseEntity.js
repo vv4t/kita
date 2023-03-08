@@ -1,12 +1,10 @@
 export class Entity {
-    constructor(pos, xBox, yBox, spriteID) {
+    constructor(pos, size, spriteID) {
         if (this.constructor == Entity) 
             throw new Error("Abstract base class Entity can not be instantiated.")
 
         this.pos = pos;
-        
-        this.xBox = xBox;
-        this.yBox = yBox;
+        this.size = size;
 
         this.spriteID = spriteID; //if spriteID == -1, there is no sprite !
     }
@@ -22,10 +20,10 @@ export class Entity {
         const newPosX = this.pos.x + moveDir.x;
         const newPosY = this.pos.y + moveDir.y;
         
-        if (map.collide(newPosX, newPosY, this.xBox, this.yBox)) {
-            if (!map.collide(oldPosX, newPosY, this.xBox, this.yBox))
+        if (map.collide(newPosX, newPosY, this.size.x, this.size.y)) {
+            if (!map.collide(oldPosX, newPosY, this.size.x, this.size.y))
                 moveDir.x = 0.0;
-            else if (!map.collide(newPosX, oldPosY, this.xBox, this.yBox))
+            else if (!map.collide(newPosX, oldPosY, this.size.x, this.size.y))
                 moveDir.y = 0.0;
             else {
                 moveDir.x = 0.0;
