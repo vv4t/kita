@@ -5,14 +5,11 @@ import { XMLParser } from "fast-xml-parser";
 const TS_PATH = "../../assets/ts/";
 const SPR_PATH = "../../assets/spr/";
 
-class TsConfig {
-  constructor(id, solid, block)
-  {
-    this.id = id;
-    this.solid = solid;
-    this.block = block;
-  }
-};
+const FLIPPED_HORIZONTALLY_FLAG   = 0x80000000;
+const FLIPPED_VERTICALLY_FLAG     = 0x40000000;
+const FLIPPED_DIAGONALLY_FLAG     = 0x20000000;
+const SOLID_FLAG                  = 0x10000000;
+const BLOCK_FLAG                  = 0x08000000;
 
 class SprFile {
   constructor(src, columns, sprWidth, sprHeight, sprCount)
@@ -55,7 +52,7 @@ function tsxToTs(tsxPath)
   const parser = new XMLParser(options);
   const tileset = parser.parse(xmlData).tileset;
   
-  const tsConfig = [];
+  const tsConfig = {};
   if (tileset.tile) {
     const tiles = [].concat(tileset.tile);
     
@@ -68,7 +65,11 @@ function tsxToTs(tsxPath)
       const solid = getProperty("solid", properties) == "true";
       const block = getProperty("block", properties) == "true";
       
-      tsConfig.push(new TsConfig(id, solid, block));
+      let flag = 0;
+      flag |= solid ? SOLID_FLAG : 0;
+      flag |= block ? BLOCK_FLAG : 0;
+      
+      tsConfig[id] = flag;
     }
   }
   

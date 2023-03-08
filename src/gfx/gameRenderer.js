@@ -2,7 +2,7 @@ import { Renderer3D } from "./renderer3D.js";
 import { textureLoad } from "./texture.js";
 import { clamp, Vector3 } from "../util/math.js";
 import { spriteMapLoad } from "../gfx/spriteMap.js";
-import { Map } from "../game/map.js";
+import { TileSet } from "../game/tileSet.js";
 
 class MapWall {
   constructor(start, end, tex)
@@ -92,11 +92,11 @@ export class GameRenderer extends Renderer3D {
       let start;
       let end;
       
-      if (wall & Map.FLIPPED_DIAGONALLY_FLAG) {
+      if (wall & TileSet.FLIPPED_DIAGONALLY_FLAG) {
         start = new Vector3(-0.5, -0.5, 0.0);
         end = new Vector3(-0.5, +0.5, 0.0);
         
-        if (wall & Map.FLIPPED_HORIZONTALLY_FLAG) {
+        if (wall & TileSet.FLIPPED_HORIZONTALLY_FLAG) {
           start.x = -start.x;
           end.x = -end.x;
         }
@@ -104,7 +104,7 @@ export class GameRenderer extends Renderer3D {
         start = new Vector3(-0.5, -0.5, 0.0);
         end = new Vector3(+0.5, -0.5, 0.0);
         
-        if (wall & Map.FLIPPED_VERTICALLY_FLAG) {
+        if (wall & TileSet.FLIPPED_VERTICALLY_FLAG) {
           start.y = -start.y;
           end.y = -end.y;
         }

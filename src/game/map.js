@@ -1,6 +1,6 @@
 import { rand } from "../util//math.js";
 import { fileLoad } from "../util/file.js";
-import { tileSetLoad } from "./tileSet.js";
+import { tileSetLoad, TileSet } from "./tileSet.js";
 
 class RayHit {
   constructor(side, dist, xMap, yMap)
@@ -13,9 +13,6 @@ class RayHit {
 };
 
 export class Map {
-  static FLIPPED_HORIZONTALLY_FLAG  = 0x80000000;
-  static FLIPPED_VERTICALLY_FLAG    = 0x40000000;
-  static FLIPPED_DIAGONALLY_FLAG    = 0x20000000;
   
   constructor(tileSet, sky, width, height, walls, props)
   {
@@ -37,30 +34,25 @@ export class Map {
   getTile(x, y)
   {
     if (x < 0 || y < 0 || x >= this.width || y >= this.height)
-      return this.voidTile;
+      return this.voidTile | this.tileSet.getConfig(this.voidTile);
     
-    return this.tiles[x + y * this.width];
-  }
-  
-  getWall(x, y)
-  {
-    if (x < 0 || y < 0 || x >= this.width || y >= this.height)
-      return this.tileSet.defaultConfig;
+    let tile = this.tiles[x + y * this.width];
+    tile |= this.tileSet.getConfig(tile & 255);
     
-    if (!this.walls[x + y * this.width])
-      return this.tileSet.defaultConfig;
+    if (this.walls[x + y * this.width])
+      tile |= this.tileSet.getConfig(this.walls[x + y * this.width] & 255);
     
-    return this.tileSet.getTile(this.walls[x + y * this.width] & 255);
+    return tile;
   }
   
   isSolid(x, y)
   {
-    return this.tileSet.getTile(this.getTile(x, y) & 255).solid || this.getWall(x, y).solid;
+    return (this.getTile(x, y) & TileSet.SOLID_FLAG) > 0;
   }
   
   isBlock(x, y)
   {
-    return this.tileSet.getTile(this.getTile(x, y) & 255).block;
+    return (this.getTile(x, y) & TileSet.BLOCK_FLAG) > 0;
   }
 
   isCorner(x, y) {

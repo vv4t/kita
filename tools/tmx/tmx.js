@@ -7,7 +7,7 @@ const MAP_PATH = "../../assets/map/";
 class MapFile {
   constructor(ts, sky, width, height, data, walls, props)
   {
-    this.ts= ts;
+    this.ts = ts;
     this.sky = sky;
     this.width = width;
     this.height = height;
@@ -84,9 +84,9 @@ function tmxToMap(tmxPath)
   for (let y = 0; y < floorHeight; y++) {
     for (let x = 0; x < floorWidth; x++) {
       const floorTile = floorData[x + y * floorWidth];
-      const ceilTile = ceilData[x + y * floorWidth];
+      const ceilTile = ceilData[x + y * floorWidth] & 255;
       
-      const tile = floorTile | ceilTile << 8;
+      const tile = floorTile | (ceilTile << 8);
       
       data.push(tile);
     }

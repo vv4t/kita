@@ -1,5 +1,5 @@
 import { clamp, Vector3 } from "../util/math.js";
-import { Map } from "../game/map.js";
+import { TileSet } from "../game/tileSet.js";
 
 export class Renderer3D {
   constructor(bitmap)
@@ -311,15 +311,15 @@ export class Renderer3D {
             let xTex = 1.0 - (xPixel - Math.floor(xPixel));
             let yTex = (yPixel - Math.floor(yPixel));
             
-            if (envTile & Map.FLIPPED_DIAGONALLY_FLAG) {
+            if (envTile & TileSet.FLIPPED_DIAGONALLY_FLAG) {
               const tmp = xTex;
               xTex = yTex;
               yTex = tmp;
             }
             
-            if (envTile & Map.FLIPPED_HORIZONTALLY_FLAG)
+            if (envTile & TileSet.FLIPPED_HORIZONTALLY_FLAG)
               xTex = 1.0 - xTex;
-            if (envTile & Map.FLIPPED_VERTICALLY_FLAG)
+            if (envTile & TileSet.FLIPPED_VERTICALLY_FLAG)
               yTex = 1.0 - yTex;
             
             const xt = Math.floor(xTex * tex.width);

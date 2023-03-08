@@ -1,26 +1,23 @@
 import { fileLoad } from "../util/file.js";
 import { spriteMapLoad } from "../gfx/spriteMap.js";
 
-export class TileConfig {
-  constructor(solid, block)
-  {
-    this.solid = solid;
-    this.block = block;
-  }
-};
-
 export class TileSet {
+  static FLIPPED_HORIZONTALLY_FLAG  = 0x80000000;
+  static FLIPPED_VERTICALLY_FLAG    = 0x40000000;
+  static FLIPPED_DIAGONALLY_FLAG    = 0x20000000;
+  static SOLID_FLAG                 = 0x10000000;
+  static BLOCK_FLAG                 = 0x08000000;
+  
   constructor(spriteMap, tileConfig)
   {
     this.spriteMap = spriteMap;
     this.tileConfig = tileConfig;
-    this.defaultConfig = new TileConfig(false, false);
   }
   
-  getTile(tileID)
+  getConfig(tileID)
   {
     if (!this.tileConfig[tileID])
-      return this.defaultConfig;
+      return 0;
     return this.tileConfig[tileID];
   }
 };
@@ -31,12 +28,7 @@ export function tileSetLoad(tsPath, onLoad)
     const tsFile = JSON.parse(tsFileText);
     
     spriteMapLoad(tsFile.spr, (spriteMap) => {
-      const tileConfig = {};
-      
-      for (const tsConfig of tsFile.tsConfig)
-        tileConfig[tsConfig.id] = new TileConfig(tsConfig.solid, tsConfig.block);
-      
-      onLoad(new TileSet(spriteMap, tileConfig));
+      onLoad(new TileSet(spriteMap, tsFile.tsConfig));
     });
   });
 }
