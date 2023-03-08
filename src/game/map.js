@@ -29,11 +29,6 @@ export class Map {
     this.voidTile = 1;
   }
   
-  getWalls()
-  {
-    return this.walls;
-  }
-  
   getProps()
   {
     return this.props;
@@ -47,9 +42,25 @@ export class Map {
     return this.tiles[x + y * this.width];
   }
   
+  getWall(x, y)
+  {
+    if (x < 0 || y < 0 || x >= this.width || y >= this.height)
+      return this.tileSet.defaultConfig;
+    
+    if (!this.walls[x + y * this.width])
+      return this.tileSet.defaultConfig;
+    
+    return this.tileSet.getTile(this.walls[x + y * this.width] & 255);
+  }
+  
   isSolid(x, y)
   {
-    return this.tileSet.getTile(this.getTile(x, y) & 255).solid;
+    return this.tileSet.getTile(this.getTile(x, y) & 255).solid || this.getWall(x, y).solid;
+  }
+  
+  isBlock(x, y)
+  {
+    return this.tileSet.getTile(this.getTile(x, y) & 255).block;
   }
 
   isCorner(x, y) {
@@ -111,7 +122,7 @@ export class Map {
     }
     
     let side = false;
-    while (!this.isSolid(xMap, yMap)) {
+    while (!this.isBlock(xMap, yMap)) {
       if (xSideDist < ySideDist) {
         xSideDist += xDeltaDist;
         xMap += xStep;

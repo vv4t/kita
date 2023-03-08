@@ -6,10 +6,11 @@ const TS_PATH = "../../assets/ts/";
 const SPR_PATH = "../../assets/spr/";
 
 class TsConfig {
-  constructor(id, solid)
+  constructor(id, solid, block)
   {
     this.id = id;
     this.solid = solid;
+    this.block = block;
   }
 };
 
@@ -65,8 +66,9 @@ function tsxToTs(tsxPath)
       
       const id = parseInt(tile.id) + 1;
       const solid = getProperty("solid", properties) == "true";
+      const block = getProperty("block", properties) == "true";
       
-      tsConfig.push(new TsConfig(id, solid));
+      tsConfig.push(new TsConfig(id, solid, block));
     }
   }
   

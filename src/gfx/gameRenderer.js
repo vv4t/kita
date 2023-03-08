@@ -85,15 +85,18 @@ export class GameRenderer extends Renderer3D {
     this.map = map;
     this.mapWalls = [];
     
-    for (const wall of map.walls) {
+    for (const [posID, wall] of Object.entries(map.walls)) {
+      const xPos = posID % map.width;
+      const yPos = Math.floor(posID / map.width);
+      
       let start;
       let end;
       
-      if (wall.tile & Map.FLIPPED_DIAGONALLY_FLAG) {
+      if (wall & Map.FLIPPED_DIAGONALLY_FLAG) {
         start = new Vector3(-0.5, -0.5, 0.0);
         end = new Vector3(-0.5, +0.5, 0.0);
         
-        if (wall.tile & Map.FLIPPED_HORIZONTALLY_FLAG) {
+        if (wall & Map.FLIPPED_HORIZONTALLY_FLAG) {
           start.x = -start.x;
           end.x = -end.x;
         }
@@ -101,16 +104,16 @@ export class GameRenderer extends Renderer3D {
         start = new Vector3(-0.5, -0.5, 0.0);
         end = new Vector3(+0.5, -0.5, 0.0);
         
-        if (wall.tile & Map.FLIPPED_VERTICALLY_FLAG) {
+        if (wall & Map.FLIPPED_VERTICALLY_FLAG) {
           start.y = -start.y;
           end.y = -end.y;
         }
       }
       
-      start.add(new Vector3(wall.xPos + 0.5, wall.yPos + 0.5, 0.0));
-      end.add(new Vector3(wall.xPos + 0.5, wall.yPos + 0.5, 0.0));
+      start.add(new Vector3(xPos + 0.5, yPos + 0.5, 0.0));
+      end.add(new Vector3(xPos + 0.5, yPos + 0.5, 0.0));
       
-      const tex = map.tileSet.spriteMap.getSprite(wall.tile & 255);
+      const tex = map.tileSet.spriteMap.getSprite((wall & 255) - 1);
       this.mapWalls.push(new MapWall(start, end, tex));
     }
     

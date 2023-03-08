@@ -1,1 +1,1 @@
-{"spr":"nexus","tsConfig":[{"id":1,"solid":true},{"id":3,"solid":true}]}
+{"spr":"nexus","tsConfig":[{"id":1,"solid":true,"block":true},{"id":3,"solid":true,"block":true},{"id":5,"solid":true,"block":false},{"id":6,"solid":true,"block":false},{"id":7,"solid":true,"block":false}]}

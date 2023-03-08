@@ -17,15 +17,6 @@ class MapFile {
   }
 };
 
-class Wall {
-  constructor(tile, xPos, yPos)
-  {
-    this.tile = tile;
-    this.xPos = xPos;
-    this.yPos = yPos;
-  }
-};
-
 class Prop {
   constructor(spriteID, xPos, yPos)
   {
@@ -69,9 +60,9 @@ function tmxToMap(tmxPath)
   const ceilData = ceilLayer.data["#text"].replace(/\s/g, '').split(',').map((x) => (parseInt(x)));
   
   const wallLayer = tmxMap.map.layer.find(x => x.name == "wall");
-  const wallData = wallLayer.data["#text"].replace(/\s/g, '').split(',').map((x) => (parseInt(x) - 1));
+  const wallData = wallLayer.data["#text"].replace(/\s/g, '').split(',').map((x) => (parseInt(x)));
   
-  const walls = [];
+  const walls = {};
   const props = [];
   const data = [];
   
@@ -105,13 +96,8 @@ function tmxToMap(tmxPath)
     for (let x = 0; x < floorWidth; x++) {
       const tile = wallData[x + y * floorWidth];
       
-      if (tile > 0) {
-        const id = tile;
-        const xPos = x;
-        const yPos = y;
-        
-        walls.push(new Wall(id, xPos, yPos));
-      }
+      if (tile > 0)
+        walls[x + y * floorWidth] = tile;
     }
   }
   

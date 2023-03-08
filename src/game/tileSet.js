@@ -2,9 +2,10 @@ import { fileLoad } from "../util/file.js";
 import { spriteMapLoad } from "../gfx/spriteMap.js";
 
 export class TileConfig {
-  constructor(solid)
+  constructor(solid, block)
   {
     this.solid = solid;
+    this.block = block;
   }
 };
 
@@ -13,7 +14,7 @@ export class TileSet {
   {
     this.spriteMap = spriteMap;
     this.tileConfig = tileConfig;
-    this.defaultConfig = new TileConfig(false);
+    this.defaultConfig = new TileConfig(false, false);
   }
   
   getTile(tileID)
@@ -33,7 +34,7 @@ export function tileSetLoad(tsPath, onLoad)
       const tileConfig = {};
       
       for (const tsConfig of tsFile.tsConfig)
-        tileConfig[tsConfig.id] = new TileConfig(tsConfig.solid);
+        tileConfig[tsConfig.id] = new TileConfig(tsConfig.solid, tsConfig.block);
       
       onLoad(new TileSet(spriteMap, tileConfig));
     });
