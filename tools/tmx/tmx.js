@@ -76,8 +76,8 @@ function tmxToMap(tmxPath)
     
     for (const prop of mapProps) {
       const id = parseInt(prop.gid) - 1;
-      const xPos = parseFloat(prop.x) / 10.0;
-      const yPos = parseFloat(prop.y) / 10.0;
+      const xPos = parseFloat(prop.x) / parseFloat(tmxMap.map.tilewidth);
+      const yPos = parseFloat(prop.y) / parseFloat(tmxMap.map.tileheight);
       const width = parseFloat(prop.width) / parseFloat(tmxMap.map.tilewidth);
       const height = parseFloat(prop.height) / parseFloat(tmxMap.map.tileheight);
       

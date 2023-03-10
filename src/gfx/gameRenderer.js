@@ -62,7 +62,7 @@ export class GameRenderer extends Renderer3D {
     for (const prop of this.map.props) {
       this.renderSprite(
         this.map.tileSet.spriteMap.getSprite(prop.spriteID),
-        new Vector3(prop.xPos, prop.yPos, 0.5),
+        new Vector3(prop.xPos, prop.yPos, prop.height * 0.5 - 0.5),
         prop.width,
         prop.height
       );
