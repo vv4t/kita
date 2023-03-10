@@ -18,11 +18,13 @@ class MapFile {
 };
 
 class Prop {
-  constructor(spriteID, xPos, yPos)
+  constructor(spriteID, xPos, yPos, width, height)
   {
     this.spriteID = spriteID;
     this.xPos = xPos;
     this.yPos = yPos;
+    this.width = width;
+    this.height = height;
   }
 };
 
@@ -46,7 +48,7 @@ function tmxToMap(tmxPath)
   };
   
   const parser = new XMLParser(options);
-  let tmxMap = parser.parse(xmlData);
+  const tmxMap = parser.parse(xmlData);
   
   const properties = tmxMap.map.properties ? [].concat(tmxMap.map.properties) : [];
   const sky = getProperty("sky", properties)
@@ -76,8 +78,10 @@ function tmxToMap(tmxPath)
       const id = parseInt(prop.gid) - 1;
       const xPos = parseFloat(prop.x) / 10.0;
       const yPos = parseFloat(prop.y) / 10.0;
+      const width = parseFloat(prop.width) / parseFloat(tmxMap.map.tilewidth);
+      const height = parseFloat(prop.height) / parseFloat(tmxMap.map.tileheight);
       
-      props.push(new Prop(id, xPos, yPos));
+      props.push(new Prop(id, xPos, yPos, width, height));
     }
   }
   

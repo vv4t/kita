@@ -15,7 +15,7 @@ export class Renderer3D {
     this.fogColor = [ 20, 10, 10 ];
   }
   
-  renderSprite(spriteTex, spritePos)
+  renderSprite(spriteTex, spritePos, width=1.0, height=1.0)
   {
     const cosDir = Math.cos(-this.camera.rot);
     const sinDir = Math.sin(-this.camera.rot);
@@ -31,16 +31,17 @@ export class Renderer3D {
       return;
     
     const distFactor = this.bitmap.width / (yRot * this.camera.fov);
-    const texStep = 1.0 / distFactor;
+    const xTexStep = 1.0 / (distFactor * width);
+    const yTexStep = 1.0 / (distFactor * height);
     
-    let xPixel0 = (xRot - 0.5) * distFactor + this.halfWidth;
-    let xPixel1 = (xRot + 0.5) * distFactor + this.halfWidth;
-    let yPixel0 = (zCam - 0.5) * distFactor + this.halfHeight;
-    let yPixel1 = (zCam + 0.5) * distFactor + this.halfHeight;
+    let xPixel0 = (xRot - 0.5 * width) * distFactor + this.halfWidth;
+    let xPixel1 = (xRot + 0.5 * width) * distFactor + this.halfWidth;
+    let yPixel0 = (zCam - 0.5 * height) * distFactor + this.halfHeight;
+    let yPixel1 = (zCam + 0.5 * height) * distFactor + this.halfHeight;
     
     let xTex = 0;
     if (xPixel0 < 0) {
-      xTex = -xPixel0 / distFactor;
+      xTex = -xPixel0 * xTexStep;
       xPixel0 = 0;
     }
     
@@ -49,7 +50,7 @@ export class Renderer3D {
     
     let yTexStart = 0;
     if (yPixel0 < 0) {
-      yTexStart = -yPixel0 / distFactor;
+      yTexStart = -yPixel0 * yTexStep;
       yPixel0 = 0;
     }
     
@@ -62,11 +63,11 @@ export class Renderer3D {
     const yp1 = Math.floor(yPixel1);
     
     for (let x = xp0; x < xp1; x++) {
-      xTex += texStep;
+      xTex += xTexStep;
       
       let yTex = yTexStart;
       for (let y = yp0; y < yp1; y++) {
-        yTex += texStep;
+        yTex += yTexStep;
         
         const xt = Math.floor(xTex * spriteTex.width);
         const yt = Math.floor(yTex * spriteTex.height);

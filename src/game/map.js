@@ -26,11 +26,6 @@ export class Map {
     this.voidTile = 1;
   }
   
-  getProps()
-  {
-    return this.props;
-  }
-  
   getTile(x, y)
   {
     if (x < 0 || y < 0 || x >= this.width || y >= this.height)
