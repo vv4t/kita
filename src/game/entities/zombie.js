@@ -15,8 +15,8 @@ export class Zombie extends Entity {
         this.speed = 3
 
         const animationStates =  {
-            "idle" : new Animation(4, 2, 300),
-            "aggro" : new Animation(6, 2, 150)
+            "idle" : new Animation(8, 2, 300),
+            "aggro" : new Animation(8, 2, 150)
         } 
         this.animation = new AnimationEngine("idle", animationStates)
     
