@@ -1,4 +1,5 @@
 import { mapLoad } from "./map.js";
+import { Paths } from "./paths.js";
 import { Player } from "./entities/player.js";
 import { Vector3 } from "../util/math.js";
 
@@ -6,6 +7,7 @@ export class Game {
   constructor()
   {
     this.map = null;
+    this.paths = null;
     
     this.time = 0.0;
     
@@ -48,6 +50,7 @@ export class Game {
   {
     mapLoad(mapName, (map) => {
       this.map = map;
+      this.paths = new Paths(map);
       
       for (const action of this.events["mapLoad"])
         action(map);

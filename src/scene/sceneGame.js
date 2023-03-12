@@ -27,7 +27,6 @@ export class SceneGame extends BaseScene {
   
   mapLoad()
   {
-    Zombie.generateNodes(this.app.game.map);
     this.app.game.player.pos = new Vector2(3.0, 3.0);
     this.app.game.entities.push(new Zombie(new Vector3(20, 20, 0.0)));
   }

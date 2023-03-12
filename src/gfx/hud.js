@@ -17,12 +17,12 @@ export class HUD extends Renderer2D {
       return;
     
     this.drawCrossHair();
-    this.drawWeapon();
-    this.drawHealth();
-    this.drawInfo();
+    this.drawWeapon(game);
+    this.drawHealth(game);
+    this.drawInfo(game);
   }
   
-  drawInfo()
+  drawInfo(game)
   {
     this.drawText(
       "X " + Math.floor(game.player.pos.x).toString() +
@@ -33,12 +33,12 @@ export class HUD extends Renderer2D {
     );
   }
   
-  drawHealth()
+  drawHealth(game)
   {
     this.drawText("HP 100", this.font, 10, this.bitmap.height - 12, [ 255, 255, 255, 255 ]);
   }
   
-  drawWeapon()
+  drawWeapon(game)
   {
     this.oldRot += (game.player.rot - this.oldRot) * 0.1;
     
