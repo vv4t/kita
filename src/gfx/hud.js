@@ -42,8 +42,8 @@ export class HUD extends Renderer2D {
   {
     this.oldRot += (game.player.rot - this.oldRot) * 0.1;
     
-    const cosMoveInterp = Math.cos(game.player.moveInterp * 5);
-    const weapBob = cosMoveInterp * cosMoveInterp * 9;
+    const sinMoveInterp = Math.sin(game.player.moveInterp * 5);
+    const weapBob = sinMoveInterp * sinMoveInterp * 9;
     
     this.drawTexture(
       this.hudSpriteMap.getSprite(0),
