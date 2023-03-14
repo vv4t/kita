@@ -22,7 +22,7 @@ export class SceneGame extends BaseScene {
     
     this.initGUI();
     
-    this.app.game.mapLoad("nexus");
+    this.app.game.mapLoad("hospital");
   }
   
   mapLoad()
