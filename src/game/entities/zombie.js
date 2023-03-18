@@ -38,7 +38,7 @@ export class Zombie extends Entity {
                    .mulf(this.speed)
                    .mulf(delta);
             
-            this.clipMoveDir(moveDir, game.map);
+            this.clipMove(moveDir, game.map);
             this.pos.add(moveDir);
         }
 

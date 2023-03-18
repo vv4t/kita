@@ -13,21 +13,16 @@ export class Entity {
         throw new Error("No update method implemented.")
     }
 
-    clipMoveDir(moveDir, map)
+    clipMove(step, map)
     {
-        const oldPosX = this.pos.x;
-        const oldPosY = this.pos.y;
-        const newPosX = this.pos.x + moveDir.x;
-        const newPosY = this.pos.y + moveDir.y;
-        
         if (map.collide(newPosX, newPosY, this.size.x, this.size.y)) {
             if (!map.collide(oldPosX, newPosY, this.size.x, this.size.y))
-                moveDir.x = 0.0;
+                this.pos.x += step.x;
             else if (!map.collide(newPosX, oldPosY, this.size.x, this.size.y))
-                moveDir.y = 0.0;
+                this.pos.y += step.y;
             else {
-                moveDir.x = 0.0;
-                moveDir.y = 0.0;
+                this.pos.x += step.x;
+                this.pos.y += step.y;
             }
         }
     }

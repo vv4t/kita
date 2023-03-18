@@ -30,8 +30,7 @@ export class Player extends Entity {
       moveDir.normalize();
       moveDir.mulf(this.moveSpeed * delta);
       
-      this.clipMoveDir(moveDir, map);
-      this.pos.add(moveDir);
+      this.clipMove(moveDir, map);
       
       this.moveInterp += delta;
     } else {
