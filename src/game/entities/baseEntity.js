@@ -15,15 +15,17 @@ export class Entity {
 
     clipMove(step, map)
     {
+        const newPosX = this.pos.x + step.x;
+        const newPosY = this.pos.y + step.y;
+        
         if (map.collide(newPosX, newPosY, this.size.x, this.size.y)) {
-            if (!map.collide(oldPosX, newPosY, this.size.x, this.size.y))
-                this.pos.x += step.x;
-            else if (!map.collide(newPosX, oldPosY, this.size.x, this.size.y))
-                this.pos.y += step.y;
-            else {
-                this.pos.x += step.x;
-                this.pos.y += step.y;
-            }
+            if (!map.collide(this.pos.x, newPosY, this.size.x, this.size.y))
+                this.pos.y = newPosY;
+            else if (!map.collide(newPosX, this.pos.y, this.size.x, this.size.y))
+                this.pos.x = newPosX;
+        } else {
+          this.pos.x = newPosX;
+          this.pos.y = newPosY;
         }
     }
 }

@@ -39,7 +39,6 @@ export class Zombie extends Entity {
                    .mulf(delta);
             
             this.clipMove(moveDir, game.map);
-            this.pos.add(moveDir);
         }
 
         // Some example logic to demonstrate animation states
