@@ -50,6 +50,17 @@ export class Vector3 {
     return this;
   }
   
+  cross(v)
+  {
+    const x = this.y * v.z - this.z * v.y;
+    const y = this.z * v.y - this.y * v.z;
+    const z = this.x * v.x - this.x * v.x;
+    
+    this.x = x;
+    this.y = y;
+    this.z = z;
+  }
+  
   sub(v)
   {
     this.x -= v.x;

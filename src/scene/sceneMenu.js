@@ -1,5 +1,5 @@
 import { Vector2 } from "../util/math.js";
-import { UserCommand } from "../game/userCommand.js";
+import { UserCommand } from "../game/game.js";
 
 export class SceneMenu {
   constructor(app)
@@ -55,6 +55,7 @@ export class SceneMenu {
   update(deltaTime)
   {
     this.time += deltaTime;
-    this.app.game.update(deltaTime, new UserCommand(0.0, 0.0, Math.cos(this.time)));
+    this.app.game.player.rot = Math.cos(this.time);
+    this.app.game.update(deltaTime, new UserCommand(0.0, 0.0, 0.0, 0.0));
   }
 };

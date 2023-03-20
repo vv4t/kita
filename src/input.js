@@ -1,4 +1,4 @@
-import { UserCommand } from "./game/userCommand.js";
+import { UserCommand } from "./game/game.js";
 
 class Bind {
   constructor(name)
@@ -11,9 +11,7 @@ class Bind {
 export class Input {
   constructor()
   {
-    this.lookSensitivity = 0.005;
-    
-    this.mouseX = 0.0;
+    this.deltaMouseX = 0.0;
     
     this.actionActive = true;
     this.actionBinds = {};
@@ -61,12 +59,13 @@ export class Input {
   mouseMove(xMovement, yMovement)
   {
     if (this.actionActive)
-      this.mouseX += xMovement; 
+      this.deltaMouseX += xMovement; 
   }
   
   mouseEvent(button, action)
   {
-    
+    const key = "mouse" + (button + 1).toString();
+    this.keyEvent(key, action);
   }
   
   keyEvent(key, action)
@@ -90,10 +89,15 @@ export class Input {
   
   getUserCommand()
   {
-    return new UserCommand(
+    const userCommand = new UserCommand(
       this.actionStates["right"] - this.actionStates["left"],
       this.actionStates["forward"] - this.actionStates["back"],
-      -this.mouseX * this.lookSensitivity
+      this.actionStates["attack1"],
+      -this.deltaMouseX
     );
+    
+    this.deltaMouseX = 0.0;
+    
+    return userCommand;
   }
 };

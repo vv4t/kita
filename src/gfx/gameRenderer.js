@@ -75,7 +75,7 @@ export class GameRenderer extends Renderer3D {
       return;
     
     for (const entity of entities) {
-      if (entity.spriteID == -1)
+      if (entity.spriteID == -1 || !entity.active)
         continue;
       
       this.renderSprite(this.entitySpriteMap.getSprite(entity.spriteID), entity.pos);

@@ -5,7 +5,9 @@ export class Entity {
 
         this.pos = pos;
         this.size = size;
-
+        
+        this.active = true;
+        
         this.spriteID = spriteID; //if spriteID == -1, there is no sprite !
     }
 

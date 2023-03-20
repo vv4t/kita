@@ -98,6 +98,8 @@ class App {
     this.input.bindAction("a", "left");
     this.input.bindAction("s", "back");
     this.input.bindAction("d", "right");
+    
+    this.input.bindAction("mouse1", "attack1");
   }
 };
 
